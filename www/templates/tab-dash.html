@@ -1,0 +1,105 @@
+<ion-view title="Questions">
+  <!--<ion-content>
+    <ion-list>
+      <ion-item ng-repeat="expense in expenses|filter:userId" type="item-text-wrap">
+        {{expense.label}}
+        <span class="badge badge-balanced">{{expense.cost}}</span>
+      </ion-item>
+    </ion-list>
+      <div class="card assertive">
+          <div class="item item-text-wrap">
+              Total Spent <span class="badge badge-positive">{{getTotal()}}</span>
+          </div>
+      </div>
+  </ion-content>
+  <ion-footer-bar>
+      <input ng-model='label' type='text' id='labelInput'  placeholder='Type a new expense...'>
+      <input ng-model='cost' type="number" id="costInput" placeholder='$'>
+      <button class="button icon-left ion-plus" ng-click="addExpense($event)">Add</button>
+  </ion-footer-bar>-->
+<ion-content>
+
+        <div ng-show="showSchoolPrograms">
+            <h4 class="row">Odberete edna od navedenite</h4>
+            <ion-list>
+                <ion-item ng-repeat="program in schoolPrograms" type="item-text-wrap" ng-click="choosenLanguage(program.language)">
+                    <label>{{program.language}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+        <div ng-show="showTypesEducation">
+            <h4 class="row">Odberete edna od navedenite</h4>
+            <ion-list>
+                <ion-item ng-repeat="type in typesOfEducation" type="item-text-wrap" ng-click="choosenTypeOfEducation(type.name)">
+                    <label>{{type.name}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+        <div ng-show="showYearsOfStudy">
+            <h4 class="row">Odberete edna od navedenite</h4>
+            <ion-list>
+                <ion-item ng-repeat="year in yearsOfStudy" type="item-text-wrap" ng-click="choosenYearOfStudy(year.name)">
+                    <label>{{year.name}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+        <div ng-show="showEducationPlans">
+            <h4 class="row">Odberete edna od navedenite</h4>
+            <ion-list>
+                <ion-item ng-repeat="plan in educationPlans" type="item-text-wrap" ng-click="choosenEducationPlan(plan.name)">
+                    <label>{{plan.name}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+        <div ng-show="showSubjects">
+            <h4 class="row">Odberete edna od navedenite</h4>
+            <ion-list>
+                <ion-item ng-repeat="subject in subjects" type="item-text-wrap">
+                    <ion-checkbox ng-model="selected[subject.name]">{{subject.name}}</ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+        </div>
+        <div ng-show="showSelectedSubjects">
+            <h4 class="row">Odberete edna od navedenite</h4>
+            <ion-list>
+                <ion-item ng-repeat="subject in selectedSubjects" type="item-text-wrap" ng-click="showSelectedSubject(subject)">
+                    <ion-radio>{{subject}}</ion-radio>
+                </ion-item>
+            </ion-list>
+
+        </div>
+
+
+
+
+        <div ng-show="showQuestions">
+
+            <div>
+                <label>{{question.content}}</label>
+            </div>
+            <div>
+            <img src="{{question.pictureUrl}}" ng-show="question.type === 'text&picture'" />
+            </div>
+        </div>
+
+
+    </ion-content>
+    <ion-footer-bar style="margin:0; padding:0;">
+
+        <button class="button button-full button-positive" ng-click="showSelected()" ng-show="showSubjects">
+            Dodadi
+        </button>
+
+        <button class="button button-full button-positive" ng-click="getQuestions()" ng-show="showSelectedSubjects">
+            Prikazi prasanja
+        </button>
+
+        <div class="button-bar" ng-show="showQuestions" style="margin:0; padding:0;">
+            <a class="button icon-left ion-ios-arrow-left" ng-click="prevQuestion()">Prev</a>
+            <button class="button icon-left ion-ios-chatboxes" ng-click="joinChatRoom()">Join chatroom</button>
+            <a class="button icon-right ion-ios-arrow-right" ng-click="nextQuestion()">Next</a>
+        </div>
+    </ion-footer-bar>
+
+</ion-view>

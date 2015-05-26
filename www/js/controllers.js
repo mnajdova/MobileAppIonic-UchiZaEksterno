@@ -1,8 +1,19 @@
 angular.module('starter.controllers', ['ionic.utils'])
 
-.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state) {
+.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading) {
 
-        $scope.schoolPrograms = $firebase(fireBaseData.refSchoolPrograms()).$asArray();
+        $ionicLoading.show({
+            template: '<i class="button-icon icon ion-loading-b"></i><style>.loading{background-color: inherit !important; } </style>'
+        });
+
+        //$scope.schoolPrograms = $firebase(fireBaseData.refSchoolPrograms()).$asArray();
+
+        var reference = fireBaseData.refSchoolPrograms();
+        reference.on("value", function(snapshot) {
+            $ionicLoading.hide();
+            console.log(snapshot.val());
+            $scope.schoolPrograms = snapshot.val();
+        });
 
 
         $scope.choosenLanguage = function(language){
@@ -73,6 +84,7 @@ angular.module('starter.controllers', ['ionic.utils'])
 
             var reference = fireBaseData.refSchoolPrograms();
             reference.on("value", function(snapshot) {
+                $ionicLoading.hide();
                 console.log(snapshot.val());
                 $scope.schoolPrograms = snapshot.val();
 
@@ -289,8 +301,8 @@ angular.module('starter.controllers', ['ionic.utils'])
 .controller('AccountCtrl', function($scope, fireBaseData, $firebase, $localstorage) {
 
 		console.log($localstorage.getObject('user'));
-		$scope.loggedUser = $localstorage.getObject('user'); 
-	
+		$scope.loggedUser = $localstorage.getObject('user');
+
 		function isEmptyObject(obj){
 			return JSON.stringify(obj) === '{}';
 		}
@@ -309,13 +321,13 @@ angular.module('starter.controllers', ['ionic.utils'])
 				console.log($localstorage.getObject('user'));
 				$scope.loggedUser = authData["facebook"]["cachedUserProfile"];
 			}
-			
+
 			});
-		
+
 		}
 		else{
 			$scope.loggedUser = $localstorage.getObject('user');
 			console.log($scope.loggedUser.id);
 		}
-		
+
 });

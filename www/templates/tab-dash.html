@@ -1,26 +1,8 @@
-<ion-view title="Questions">
-  <!--<ion-content>
-    <ion-list>
-      <ion-item ng-repeat="expense in expenses|filter:userId" type="item-text-wrap">
-        {{expense.label}}
-        <span class="badge badge-balanced">{{expense.cost}}</span>
-      </ion-item>
-    </ion-list>
-      <div class="card assertive">
-          <div class="item item-text-wrap">
-              Total Spent <span class="badge badge-positive">{{getTotal()}}</span>
-          </div>
-      </div>
-  </ion-content>
-  <ion-footer-bar>
-      <input ng-model='label' type='text' id='labelInput'  placeholder='Type a new expense...'>
-      <input ng-model='cost' type="number" id="costInput" placeholder='$'>
-      <button class="button icon-left ion-plus" ng-click="addExpense($event)">Add</button>
-  </ion-footer-bar>-->
+<meta charset="utf-8">
+<ion-view title="Прашања">
 <ion-content>
-
         <div ng-show="showSchoolPrograms">
-            <h4 class="row">Odberete edna od navedenite</h4>
+            <h4 class="row">Изберете јазик на наставен план</h4>
             <ion-list>
                 <ion-item ng-repeat="program in schoolPrograms" type="item-text-wrap" ng-click="choosenLanguage(program.language)">
                     <label>{{program.language}}</label>
@@ -28,7 +10,7 @@
             </ion-list>
         </div>
         <div ng-show="showTypesEducation">
-            <h4 class="row">Odberete edna od navedenite</h4>
+            <h4 class="row">Изберете тип на образование</h4>
             <ion-list>
                 <ion-item ng-repeat="type in typesOfEducation" type="item-text-wrap" ng-click="choosenTypeOfEducation(type.name)">
                     <label>{{type.name}}</label>
@@ -36,7 +18,7 @@
             </ion-list>
         </div>
         <div ng-show="showYearsOfStudy">
-            <h4 class="row">Odberete edna od navedenite</h4>
+            <h4 class="row">Изберете одделение/година</h4>
             <ion-list>
                 <ion-item ng-repeat="year in yearsOfStudy" type="item-text-wrap" ng-click="choosenYearOfStudy(year.name)">
                     <label>{{year.name}}</label>
@@ -44,7 +26,7 @@
             </ion-list>
         </div>
         <div ng-show="showEducationPlans">
-            <h4 class="row">Odberete edna od navedenite</h4>
+            <h4 class="row">Изберете наставен план</h4>
             <ion-list>
                 <ion-item ng-repeat="plan in educationPlans" type="item-text-wrap" ng-click="choosenEducationPlan(plan.name)">
                     <label>{{plan.name}}</label>
@@ -52,7 +34,7 @@
             </ion-list>
         </div>
         <div ng-show="showSubjects">
-            <h4 class="row">Odberete edna od navedenite</h4>
+            <h4 class="row">Изберете предмети</h4>
             <ion-list>
                 <ion-item ng-repeat="subject in subjects" type="item-text-wrap">
                     <ion-checkbox ng-model="selected[subject.name]">{{subject.name}}</ion-checkbox>
@@ -61,7 +43,7 @@
 
         </div>
         <div ng-show="showSelectedSubjects">
-            <h4 class="row">Odberete edna od navedenite</h4>
+            <h4 class="row">Изберете предмет за приказ на прашања</h4>
             <ion-list>
                 <ion-item ng-repeat="subject in selectedSubjects" type="item-text-wrap" ng-click="showSelectedSubject(subject)">
                     <ion-radio>{{subject}}</ion-radio>
@@ -87,18 +69,22 @@
     </ion-content>
     <ion-footer-bar style="margin:0; padding:0;">
 
-        <button class="button button-full button-positive" ng-click="showSelected()" ng-show="showSubjects">
-            Dodadi
-        </button>
+        <div class="button-bar" ng-show="showSubjects" style="...">
+            <button class="button  button-full button-positive"  ng-click="showSelected()" >
+                Зачувај
+            </button>
+        </div>
 
-        <button class="button button-full button-positive" ng-click="getQuestions()" ng-show="showSelectedSubjects">
-            Prikazi prasanja
-        </button>
+        <div class="button-bar" ng-show="showSelectedSubjects" style="...">
+            <button class="button  button-full button-positive"  ng-click="getQuestions()" >
+                Прикажи прашања
+            </button>
+        </div>
 
         <div class="button-bar" ng-show="showQuestions" style="margin:0; padding:0;">
-            <a class="button icon-left ion-ios-arrow-left" ng-click="prevQuestion()">Prev</a>
-            <button class="button icon-left ion-ios-chatboxes" ng-click="joinChatRoom()">Join chatroom</button>
-            <a class="button icon-right ion-ios-arrow-right" ng-click="nextQuestion()">Next</a>
+            <button class="button icon-left ion-ios-arrow-left" ng-click="prevQuestion()">Претходно</button>
+            <button class="button icon-left ion-ios-chatboxes" ng-click="joinChatRoom()">Соба за разовор</button>
+            <button class="button icon-right ion-ios-arrow-right" ng-click="nextQuestion()">Следно</button>
         </div>
     </ion-footer-bar>
 

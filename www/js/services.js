@@ -24,7 +24,7 @@ angular.module('starter.services', ['ionic.utils'])
 })
 
 
-    .factory('Chats', function($localstorage,$firebase, fireBaseData) {
+    .factory('Chats', function($localstorage,$firebase, fireBaseData, $q) {
       // Might use a resource here that returns a JSON array
 
 
@@ -32,138 +32,77 @@ angular.module('starter.services', ['ionic.utils'])
       console.log($localstorage.get("language"));
 
 
-
-      // Some fake testing data
-      /*var chats = [{
-        id: 0,
-        name: 'Ben Sparrow',
-        lastText: 'You on your way?',
-        face: 'https://pbs.twimg.com/profile_images/514549811765211136/9SgAuHeY.png'
-      }, {
-        id: 1,
-        name: 'Max Lynx',
-        lastText: 'Hey, it\'s me',
-        face: 'https://avatars3.githubusercontent.com/u/11214?v=3&s=460'
-      },{
-        id: 2,
-        name: 'Adam Bradleyson',
-        lastText: 'I should buy a boat',
-        face: 'https://pbs.twimg.com/profile_images/479090794058379264/84TKj_qa.jpeg'
-      }, {
-        id: 3,
-        name: 'Perry Governor',
-        lastText: 'Look at my mukluks!',
-        face: 'https://pbs.twimg.com/profile_images/491995398135767040/ie2Z_V6e.jpeg'
-      }, {
-        id: 4,
-        name: 'Mike Harrington',
-        lastText: 'This is wicked good ice cream.',
-        face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
-      }];*/
-
       return {
         all: function() {
+
+          var deferred = $q.defer();
+          var chats = [];
+          var isFinished=false;
+
+          var interval = setInterval(function() {
             var reference = fireBaseData.refSchoolPrograms();
             reference.on("value", function(snapshot) {
 
-            var schoolPrograms;
-            var typesOfEducation;
-            var yearsOfStudy;
-            var educationPlans;
-            var subjects;
-            var chats = [];
+              var schoolPrograms;
+              var typesOfEducation;
+              var yearsOfStudy;
+              var educationPlans;
+              var subjects;
 
-            schoolPrograms = snapshot.val();
+              schoolPrograms = snapshot.val();
 
-            for(var i=0;i<schoolPrograms.length;i++){
-              console.log("Prv for");
-              if(schoolPrograms[i]["language"] == $localstorage.get("language")){
-                typesOfEducation = schoolPrograms[i]["types-of-education"];
-              }
-            }
-
-              console.log(schoolPrograms);
-              console.log(typesOfEducation);
-              console.log(yearsOfStudy);
-              console.log(educationPlans);
-              console.log(subjects);
-              console.log(chats);
-
-            for(var i=0;i<typesOfEducation.length;i++) {
-              console.log("Prv for");
-              if (typesOfEducation[i]["name"] == $localstorage.get("typeOfEducation")) {
-                yearsOfStudy = typesOfEducation[i]["years-of-study"];
-              }
-            }
-
-
-              console.log(schoolPrograms);
-              console.log(typesOfEducation);
-              console.log(yearsOfStudy);
-              console.log(educationPlans);
-              console.log(subjects);
-              console.log(chats);
-            for(var i=0;i<yearsOfStudy.length;i++) {
-              console.log("Prv for");
-              if (yearsOfStudy[i]["name"] == $localstorage.get('yearOfStudy')) {
-                educationPlans = yearsOfStudy[i]["education-plans"];
-              }
-            }
-
-
-              console.log(schoolPrograms);
-              console.log(typesOfEducation);
-              console.log(yearsOfStudy);
-              console.log(educationPlans);
-              console.log(subjects);
-              console.log(chats);
-            for(var i=0;i<educationPlans.length;i++) {
-              console.log("Prv for");
-              if (educationPlans[i]["name"] == $localstorage.get('educationPlan')) {
-                subjects = educationPlans[i]["subjects"];
-              }
-            }
-
-
-              console.log(schoolPrograms);
-              console.log(typesOfEducation);
-              console.log(yearsOfStudy);
-              console.log(educationPlans);
-              console.log(subjects);
-              console.log(chats);
-            for(var i=0;i<subjects.length;i++){
-              console.log("Prv for");
-              var questions = subjects[i]["questions"];
-              for(var j=0;j<questions.length;j++){
-                console.log("Vtor for");
-                console.log(questions[j]["chatroom"]);
-                var users = questions[j]["chatroom"]["users"];
-                console.log(users);
-                for(var k=0;k<users.length;k++){
-                  console.log(users[k]);
-                  console.log($localstorage.getObject('user')["uid"]);
-                  console.log(typeof users[k]);
-                  console.log(typeof $localstorage.getObject('user')["uid"]);
-                  if(users[k] == $localstorage.getObject('user')["uid"]){
-                    chats.push(questions[j]["chatroom"]);
-                    console.log("Isti se");
-                  }
+              for(var i=0;i<schoolPrograms.length;i++){
+                if(schoolPrograms[i]["language"] == $localstorage.get("language")){
+                  $localstorage.set("languageIndex", i);
+                  typesOfEducation = schoolPrograms[i]["types-of-education"];
                 }
-
               }
-            }
 
-              console.log(schoolPrograms);
-              console.log(typesOfEducation);
-              console.log(yearsOfStudy);
-              console.log(educationPlans);
-              console.log(subjects);
-              console.log(chats);
-            return chats;
+              for(var i=0;i<typesOfEducation.length;i++) {
+                if (typesOfEducation[i]["name"] == $localstorage.get("typeOfEducation")) {
+                  $localstorage.set("typeOfEducationIndex", i);
+                  yearsOfStudy = typesOfEducation[i]["years-of-study"];
+                }
+              }
 
-          }, function (errorObject) {
-            console.log("The read failed: " + errorObject.code);
-          });
+              for(var i=0;i<yearsOfStudy.length;i++) {
+                if (yearsOfStudy[i]["name"] == $localstorage.get('yearOfStudy')) {
+                  $localstorage.set("yearOfStudyIndex", i);
+                  educationPlans = yearsOfStudy[i]["education-plans"];
+                }
+              }
+
+              for(var i=0;i<educationPlans.length;i++) {
+                if (educationPlans[i]["name"] == $localstorage.get('educationPlan')) {
+                  $localstorage.set("educationPlanIndex", i);
+                  subjects = educationPlans[i]["subjects"];
+                }
+              }
+
+              for(var i=0;i<subjects.length;i++){
+                var questions = subjects[i]["questions"];
+                for(var j=0;j<questions.length;j++){
+                  console.log(questions[j]["chatroom"]);
+                  var users = questions[j]["chatroom"]["users"];
+                  for(var k=0;k<users.length;k++){
+                    if(users[k] == $localstorage.getObject('user')["uid"]){
+                      chats.push(questions[j]["chatroom"]);
+                    }
+                  }
+
+                }
+              }
+
+              clearInterval(interval);
+              console.log("Clearing...");
+              deferred.resolve(chats);
+
+            }, function (errorObject) {
+              deferred.reject("The read failed: " + errorObject.code);
+            });
+
+          }, 1000);
+          return deferred.promise;
         },
         remove: function(chat) {
           chats.splice(chats.indexOf(chat), 1);

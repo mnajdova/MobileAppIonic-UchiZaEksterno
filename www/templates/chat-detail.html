@@ -4,11 +4,39 @@
   The FriendsCtrl pulls data from the Friends service (service.js)
   The Friends service returns an array of friend data
 -->
-<ion-view view-title="{{chat.name}}">
-  <ion-content class="padding">
-    <img ng-src="{{chat.face}}" style="width: 64px; height: 64px">
-    <p>
-      {{chat.lastText}}
-    </p>
-  </ion-content>
-</ion-view>
+
+<link href="css/messages.css" rel="stylesheet">
+
+<ion-pane class="messaging-view">
+
+
+<ion-content class="content-stable"
+             on-swipe-left="hideTime = false"
+             on-swipe-right="hideTime = true">
+
+  <div ng-repeat="message in messages"
+       ng-class="{other: message.userId != myId}"
+       class="messages" >
+
+    <img style="width:50px; height:50px;" ng-show="message.userId == myId" ng-src="{{message.userPicture}}"/>
+
+    <div class="message" ng-class="{'slide-right': hideTime, '': !hideTime}">
+      <span class="spanMessage">{{ message.text }}</span>
+    </div>
+
+    <div class="time" ng-class="{'slide-right': hideTime, '': !hideTime}"><!--{{message.time}}--></div>
+
+    <img style="width:50px; height:50px; background:yellow;" ng-show="message.userId != myId" ng-src="{{message.userPicture}}"/>
+  </div>
+
+</ion-content>
+
+<ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
+  <label class="item-input-wrapper">
+    <input type="text" placeholder="Type your message" on-return="sendMessage(); closeKeyboard()" ng-model="data.message" on-focus="inputUp()" on-blur="inputDown()" />
+  </label>
+  <button class="button button-clear" ng-click="sendMessage()">
+    Send
+  </button>
+</ion-footer-bar>
+</ion-pane>

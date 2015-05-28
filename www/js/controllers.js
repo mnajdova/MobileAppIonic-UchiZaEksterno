@@ -1,7 +1,7 @@
 angular.module('starter.controllers', ['ionic.utils'])
 
 .controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading) {
-
+        $scope.$parent.wasChatLoaded=false;
         $ionicLoading.show({
             template: '<i class="button-icon icon ion-loading-b"></i><style>.loading{background-color: inherit !important; } </style>'
         });
@@ -187,12 +187,12 @@ angular.module('starter.controllers', ['ionic.utils'])
 
         $scope.joinChatRoom = function(){
 
-
-            //console.log($localstorage.getObject('user'));
+            console.log($localstorage.getObject('user'));
 
             $scope.user = fireBaseData.ref().getAuth();
             if($scope.user != null){
                 $localstorage.setObject('user', $scope.user);
+                console.log($scope.user);
                 $state.go("tab.chats");
             }
             else {
@@ -247,10 +247,10 @@ angular.module('starter.controllers', ['ionic.utils'])
                         console.log("Authenticated successfully with payload:", authData);
                         console.log("storing...");
                         console.log(authData);
-                        $localstorage.setObject('user', authData["facebook"]["cachedUserProfile"]);
+                        $localstorage.setObject('user', authData);
                         console.log("stored");
                         console.log($localstorage.getObject('user'));
-                        $scope.loggedUser = authData["facebook"]["cachedUserProfile"];
+                        $scope.loggedUser = authData;
                         $state.go("tab.chats");
                     }
 
@@ -289,18 +289,142 @@ angular.module('starter.controllers', ['ionic.utils'])
         }
 })
 .controller('ChatsCtrl', function($scope, fireBaseData, $firebase, $localstorage, Chats, $stateParams) {
+        $scope.$parent.wasChatLoaded=false;
+        var promise = Chats.all();
 
-        $scope.chats = Chats.all();
-        $scope.remove = function(chat) {
-            Chats.remove(chat);
-        }
+        promise.then(function(chats) {
+            $scope.$parent.chats = chats;
+            console.log("Chats "+$scope.chats);
+        }, function(reason) {
+            console.log('Failed: ' + reason);
+        }, function(update) {
+            alert('Got notification: ' + update);
+        });
+
 })
-    .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-        $scope.chat = Chats.get($stateParams.chatId);
+    .controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $localstorage, $firebase, $state) {
+
+
+
+        if($scope.$parent.chats == null)
+            $state.go("tab.chats");
+        //if($scope.$parent.wasChatLoaded == false) {
+            console.log("Se izvrsuva prevzemanjeto na poraki");
+            //$scope.$parent.wasChatLoaded=true;
+            $scope.myId = $localstorage.getObject('user')["uid"];
+            console.log($location.path());
+            var array = $location.path().split("/");
+            console.log(array[array.length - 1]);
+            var text = $scope.$parent.chats[array[array.length - 1]].text;
+            console.log(text);
+            console.log("The user picture is " + $localstorage.getObject('user'));
+
+            var url = "https://blistering-torch-6297.firebaseio.com/ma-app/school-programs/" + $localstorage.get("languageIndex") + "/types-of-education/" + $localstorage.get("typeOfEducationIndex") + "/years-of-study/" + $localstorage.get("yearOfStudyIndex") + "/education-plans/" + $localstorage.get("educationPlanIndex") + "";
+            console.log(url);
+
+            var reference = new Firebase(url);
+            reference.on("value", function (snapshot) {
+                var educationPlan = snapshot.val();
+                console.log(snapshot.val());
+                var subjects = [];
+                var found = false;
+                subjects = educationPlan["subjects"];
+                for (var i = 0; i < subjects.length; i++) {
+                    console.log("Vo for");
+                    var questions = [];
+
+                    questions = subjects[i]["questions"];
+                    console.log(questions);
+                    for (var j = 0; j < questions.length; j++) {
+                        console.log(questions[i].content);
+                        console.log(text);
+                        if (questions[i].content == text) {
+                            console.log("go najde");
+                            $localstorage.set("subjectIndex", i);
+                            $localstorage.set("questionIndex", j);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found == true)
+                        break;
+                }
+                var newUrl = url + "/subjects/" + $localstorage.get("subjectIndex") + "/questions/" + $localstorage.get("questionIndex") + "/chatroom/messages";
+                console.log(newUrl);
+
+                var ref = new Firebase(newUrl);
+                ref.on("value", function (snapshot) {
+                    $scope.messages = $firebase(ref).$asArray();
+
+                });
+
+
+                $timeout(function () {
+                    $ionicScrollDelegate.scrollBottom(false);
+                }, 300);
+
+
+                console.log($scope.messages);
+
+
+            });
+        //}
+        $scope.myId = $localstorage.getObject('user')["uid"];
+
+        $scope.hideTime = true;
+
+        var alternate,
+            isIOS = ionic.Platform.isWebView() && ionic.Platform.isIOS();
+
+        $scope.sendMessage = function() {
+
+
+            console.log("The user picture is "+$localstorage.getObject('user')["facebook"]["cachedUserProfile"]["picture"]["data"]["url"]);
+
+            alternate = !alternate;
+
+            var d = new Date();
+            d = d.toLocaleTimeString().replace(/:\d+ /, ' ');
+
+            $scope.messages.$add({
+                userId: $scope.myId,
+                text: $scope.data.message,
+                time: d,
+                userPicture: $localstorage.getObject('user')["facebook"]["cachedUserProfile"]["picture"]["data"]["url"]
+            });
+
+            delete $scope.data.message;
+
+            $ionicScrollDelegate.scrollBottom(false);
+            //$ionicScrollDelegate.resize();
+
+        };
+
+
+        $scope.inputUp = function() {
+            if (isIOS) $scope.data.keyboardHeight = 216;
+            $timeout(function() {
+                $ionicScrollDelegate.scrollBottom(true);
+            }, 300);
+
+        };
+
+        $scope.inputDown = function() {
+            if (isIOS) $scope.data.keyboardHeight = 0;
+            $ionicScrollDelegate.resize();
+        };
+
+        $scope.closeKeyboard = function() {
+            // cordova.plugins.Keyboard.close();
+        };
+
+
+        $scope.data = {};
+
     })
 .controller('AccountCtrl', function($scope, fireBaseData, $firebase, $localstorage) {
+        $scope.$parent.wasChatLoaded=false;
 
-		console.log($localstorage.getObject('user'));
 		$scope.loggedUser = $localstorage.getObject('user');
 
 		function isEmptyObject(obj){

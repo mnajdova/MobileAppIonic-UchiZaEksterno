@@ -1,15 +1,30 @@
-<ion-view view-title="Разговори">
+<meta charset="utf-8">
+<ion-view title="Разговори">
   <ion-content>
     <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/chats/{{chat.id}}">
+      <!--<ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/chats/{{chat.id}}">
         <img ng-src="{{chat.face}}">
         <h2>{{chat.name}}</h2>
-        <p>{{chat.lastText}}</p>
+        <p>{{chat.text}}</p>
         <i class="icon ion-chevron-right icon-accessory"></i>
 
         <ion-option-button class="button-assertive" ng-click="remove(chat)">
           Delete
-        </ion-option-button>
+        </ion-option-button>-->
+
+        <ion-item class="" ng-repeat="chat in $parent.chats" href="#/tab/chats/{{$parent.chats.indexOf(chat)}}">
+
+          <div class="item-icon-left"  type="item-text-wrap" >
+            <i class="icon {{chat.icon}}"></i>
+            <p style="max-width: 400px;">{{chat.text}}</p>
+          </div>
+
+          <div class="item-icon-right"  type="item-text-wrap">
+            <i class="icon ion-chevron-right icon-accessory"></i>
+          </div>
+
+
+
       </ion-item>
     </ion-list>
   </ion-content>

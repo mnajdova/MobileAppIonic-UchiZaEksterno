@@ -1,11 +1,4 @@
-// Ionic Starter App
-
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-// 'starter.services' is found in services.js
-// 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'starter.services', 'firebase'])
+var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'starter.services', 'firebase'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -20,44 +13,6 @@ angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'start
     }
   });
 })
-    .directive('input', function($timeout) {
-      return {
-        restrict: 'E',
-        scope: {
-          'returnClose': '=',
-          'onReturn': '&',
-          'onFocus': '&',
-          'onBlur': '&'
-        },
-        link: function(scope, element, attr) {
-          element.bind('focus', function(e) {
-            if (scope.onFocus) {
-              $timeout(function() {
-                scope.onFocus();
-              });
-            }
-          });
-          element.bind('blur', function(e) {
-            if (scope.onBlur) {
-              $timeout(function() {
-                scope.onBlur();
-              });
-            }
-          });
-          element.bind('keydown', function(e) {
-            if (e.which == 13) {
-              if (scope.returnClose) element[0].blur();
-              if (scope.onReturn) {
-                $timeout(function() {
-                  scope.onReturn();
-                });
-              }
-            }
-          });
-        }
-      }
-    })
-
 .config(function($stateProvider, $urlRouterProvider) {
 
   // Ionic uses AngularUI Router which uses the concept of states
@@ -100,6 +55,15 @@ angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'start
           'tab-chats': {
             templateUrl: 'templates/chat-detail.html',
             controller: 'ChatDetailCtrl'
+          }
+        }
+      })
+      .state('tab.questions', {
+        url: '/dash/:subjectId',
+        views: {
+          'tab-dash': {
+            templateUrl: 'templates/questions.html',
+            controller: 'QuestionsCtrl'
           }
         }
       })

@@ -12,14 +12,15 @@
           Delete
         </ion-option-button>-->
 
-        <ion-item class="" ng-repeat="chat in $parent.chats" href="#/tab/chats/{{$parent.chats.indexOf(chat)}}">
+        <ion-item class="" ng-repeat="question in questions" href="#/tab/chats/{{question.$id}}">
 
-          <div class="item-icon-left"  type="item-text-wrap" >
+         <!-- <div class="item-icon-left"  type="item-text-wrap" >
             <i class="icon {{chat.icon}}"></i>
-            <p style="max-width: 400px;">{{chat.text}}</p>
-          </div>
+            <p style="max-width: 400px;">{{question.text}}</p>
+          </div>-->
 
           <div class="item-icon-right"  type="item-text-wrap">
+            <p style="max-width: 400px;">{{question["text"]}}</p>
             <i class="icon ion-chevron-right icon-accessory"></i>
           </div>
 

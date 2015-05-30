@@ -3,6 +3,15 @@ angular.module('starter.services', ['ionic.utils'])
  * A simple example service that returns some data.
  */
 .factory('fireBaseData', function($firebase) {
+      var appRef = new Firebase("https://uchizaeksterno.firebaseio.com/");
+      var schoolProgramsRef = new Firebase("https://uchizaeksterno.firebaseio.com/school-programs");
+      var typesOfEducationRef = new Firebase("https://uchizaeksterno.firebaseio.com/types-of-education");
+      var usersRef = new Firebase("https://uchizaeksterno.firebaseio.com/users");
+      var yearsOfStudyRef = new Firebase("https://uchizaeksterno.firebaseio.com/years-of-study");
+      var subjectsRef = new Firebase("https://uchizaeksterno.firebaseio.com/subjects");
+      var questionsRef = new Firebase("https://uchizaeksterno.firebaseio.com/questions");
+      var educationPlansRef = new Firebase("https://uchizaeksterno.firebaseio.com/education-plans");
+
   var ref = new Firebase("https://blistering-torch-6297.firebaseio.com/"),
       refMaApp = new Firebase("https://blistering-torch-6297.firebaseio.com/ma-app"),
       refSchoolPrograms = new Firebase("https://blistering-torch-6297.firebaseio.com/ma-app/school-programs");
@@ -19,12 +28,38 @@ angular.module('starter.services', ['ionic.utils'])
     },
     refSchoolPrograms: function () {
       return refSchoolPrograms;
+    },
+    schoolProgramsRef: function () {
+      return $firebase(schoolProgramsRef).$asArray();
+    },
+    appRef: function(){
+      return appRef;
+    }
+    ,
+    usersRef: function(){
+      return usersRef;
+    }
+    ,
+    typesOfEducationRef: function(){
+      return $firebase(typesOfEducationRef).$asArray();
+    }
+    ,
+    yearsOfStudyRef: function(){
+      return $firebase(yearsOfStudyRef).$asArray();
+    },
+    subjectsRef:function(){
+      return $firebase(subjectsRef).$asArray();
+    },
+    questionsRef: function(){
+      return $firebase(questionsRef).$asArray();
+    },
+    educationPlansRef: function(){
+      return $firebase(educationPlansRef).$asArray();
     }
   }
-})
+});
 
-
-    .factory('Chats', function($localstorage,$firebase, fireBaseData, $q) {
+  /*  .factory('Chats', function($localstorage,$firebase, fireBaseData, $q) {
       // Might use a resource here that returns a JSON array
 
 
@@ -116,7 +151,7 @@ angular.module('starter.services', ['ionic.utils'])
           return null;
         }
       };
-    });
+    });*/
 
 angular.module('ionic.utils', [])
 .factory('$localstorage', ['$window', function($window) {

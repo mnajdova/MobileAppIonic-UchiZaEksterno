@@ -1,176 +1,34 @@
 angular.module('starter.controllers', ['ionic.utils'])
+    .controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $location) {
+        var array = $location.path().split("/");
+        $scope.choise = array[array.length - 1];
+        console.log(array[array.length - 1]);
 
-.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading) {
-        $scope.$parent.wasChatLoaded=false;
-        $ionicLoading.show({
-            template: '<i class="button-icon icon ion-loading-b"></i><style>.loading{background-color: inherit !important; } </style>'
-        });
+        var listQuestionsIds=[];
 
-        //$scope.schoolPrograms = $firebase(fireBaseData.refSchoolPrograms()).$asArray();
-
-        var reference = fireBaseData.refSchoolPrograms();
-        reference.on("value", function(snapshot) {
-            $ionicLoading.hide();
-            console.log(snapshot.val());
-            $scope.schoolPrograms = snapshot.val();
-        });
-
-
-        $scope.choosenLanguage = function(language){
-            console.log(language +" e izbran");
-            console.log("The length is "+$scope.schoolPrograms.length);
-            for(var i=0;i<$scope.schoolPrograms.length;i++){
-                console.log($scope.schoolPrograms[i]["language"]);
-                if($scope.schoolPrograms[i]["language"] == language){
-                    console.log("Izbran e indeks "+i);
-                    $scope.typesOfEducation = $scope.schoolPrograms[i]["types-of-education"];
-                    console.log($scope.typesOfEducation);
-                    $localstorage.set('language', language);
+        var subjects = fireBaseData.subjectsRef();
+        subjects.$loaded(function(list){
+            listQuestionsIds = list[$scope.choise]["questions"];
+            console.log(list[$scope.choise]);
+            console.log(list);
+            $scope.questions= Array();
+            var questions = fireBaseData.questionsRef();
+            questions.$loaded(function(list){
+                for(var i=0; i<listQuestionsIds.length;i++){
+                    $scope.questions.push(list[listQuestionsIds[i]]);
                 }
-            }
-            $scope.showSchoolPrograms = false;
-            $scope.showTypesEducation = true;
-        };
+                $scope.index = 0;
+                $scope.question = $scope.questions[$scope.index];
+                console.log($scope.question);
 
-        $scope.choosenTypeOfEducation = function(name){
-            console.log(name +" e izbran");
-            for(var i=0;i<$scope.typesOfEducation.length;i++) {
-                if ($scope.typesOfEducation[i]["name"] == name) {
-                    $scope.yearsOfStudy = $scope.typesOfEducation[i]["years-of-study"];
-                    $localstorage.set('typeOfEducation', name);
-                }
-            }
-            $scope.showTypesEducation = false;
-            $scope.showYearsOfStudy = true;
-        };
-
-        $scope.choosenYearOfStudy = function(name){
-            console.log(name +" e izbran");
-            for(var i=0;i<$scope.yearsOfStudy.length;i++) {
-                if ($scope.yearsOfStudy[i]["name"] == name) {
-                    $scope.educationPlans = $scope.yearsOfStudy[i]["education-plans"];
-                    $localstorage.set('yearOfStudy', name);
-                }
-            }
-            $scope.showYearsOfStudy = false;
-            $scope.showEducationPlans = true;
-        };
-
-        $scope.choosenEducationPlan = function(name){
-            console.log(name +" e izbran");
-            for(var i=0;i<$scope.educationPlans.length;i++) {
-                if ($scope.educationPlans[i]["name"] == name) {
-                    $scope.subjects = $scope.educationPlans[i]["subjects"];
-                    $localstorage.set('educationPlan', name);
-                }
-            }
-            $scope.showEducationPlans = false;
-            $scope.showSubjects = true;
-            $localstorage.setObject('subjects', $scope.subjects);
-            console.log($localstorage.getObject('subjects'));
-        };
-
-        if (checkSelectionOfStudentProfile()) {
-            console.log("tuka");
-            $scope.showSchoolPrograms = false;
-            $scope.showTypesEducation = false;
-            $scope.showEducationPlans = false;
-            $scope.showYearsOfStudy = false;
-            $scope.showSubjects = false;
-            $scope.showSelectedSubjects=true;
-            $scope.showQuestions=false;
-
-            $scope.selectedSubjects = $localstorage.getObject('selectedSubjectsNames');
-
-            var reference = fireBaseData.refSchoolPrograms();
-            reference.on("value", function(snapshot) {
-                $ionicLoading.hide();
-                console.log(snapshot.val());
-                $scope.schoolPrograms = snapshot.val();
-
-                $scope.choosenLanguage($localstorage.get("language"));
-                $scope.choosenTypeOfEducation($localstorage.get("typeOfEducation"));
-                $scope.choosenYearOfStudy($localstorage.get('yearOfStudy'));
-                $scope.choosenEducationPlan($localstorage.get('educationPlan'));
-
-                $scope.showSchoolPrograms = false;
-                $scope.showTypesEducation = false;
-                $scope.showEducationPlans = false;
-                $scope.showYearsOfStudy = false;
-                $scope.showSubjects = false;
-                $scope.showSelectedSubjects=true;
-                $scope.showQuestions=false;
-
-            }, function (errorObject) {
-                console.log("The read failed: " + errorObject.code);
-            });
-
-            for (var i = 0; i < $scope.selectedSubjects.length; i++) {
-                console.log($scope.selectedSubjects[i]);
-            }
-
-        }
-        else {
-            $scope.showSchoolPrograms = true;
-            $scope.selected=[];
-            $scope.selectedSubjects=[];
-        }
-
-        //console.log( $scope.schoolPrograms);
-        //console.log($localstorage.getObject('user').id);
-
-		//$scope.loggedUser = $localstorage.getObject('user');
-		//$scope.userId=""+$scope.loggedUser.id+"";
-
-        $scope.showSelected = function() {
-            $scope.selectedSubjects=[];
-            for(key in $scope.selected){
-                console.log(key);
-                $scope.selectedSubjects.push(key);
-            }
-
-            console.log($scope.selectedSubjects);
-            $scope.showSubjects = false;
-            $scope.showSelectedSubjects=true;
-
-            $localstorage.setObject('selectedSubjectsNames', $scope.selectedSubjects);
-        };
-
-        $scope.showSelectedSubject = function(subject){
-            $scope.choise = subject;
-            console.log(subject);
-            $localstorage.set('choise', subject);
-        };
-
-        $scope.getQuestions = function() {
-
-            console.log("Konecno " + $scope.choise);
-            console.log($localstorage.getObject('subjects'));
-            if ( typeof $scope.subjects === 'undefined') {
-                console.log("Se zema od local storage");
-                $scope.subjects = $localstorage.getObject('subjects');
-            }
-
-            for(var i=0;i<$scope.subjects.length;i++) {
-                console.log("In loop");
-                if ($scope.subjects[i]["name"] == $scope.choise) {
-                    console.log("Name "+$scope.subjects[i]["name"]);
-                    console.log("Choise "+$scope.choise);
-                    $scope.questions = $scope.subjects[i]["questions"];
-                }
-            }
-            console.log($scope.questions);
-            $scope.index = 0;
-            $scope.question = $scope.questions[$scope.index];
-            console.log($scope.questions);
-            $scope.showSelectedSubjects=false;
-            $scope.showQuestions=true;
-        };
+            })
+        })
 
         $scope.nextQuestion = function(){
-            var nextIndex = ($scope.index+1) % $scope.questions.length
+            var nextIndex = ($scope.index+1) % $scope.questions.length;
             $scope.question = $scope.questions[nextIndex];
             $scope.index = nextIndex;
+            console.log(typeof $scope.question['picture-url']);
             console.log($scope.question);
         };
 
@@ -182,23 +40,69 @@ angular.module('starter.controllers', ['ionic.utils'])
                 prevIndex = $scope.index-1;
             $scope.question = $scope.questions[prevIndex];
             $scope.index = prevIndex;
+
             console.log($scope.question);
         };
 
         $scope.joinChatRoom = function(){
 
-            console.log($localstorage.getObject('user'));
+            if(JSON.stringify($localstorage.getObject('user')) != "{}"){
 
-            $scope.user = fireBaseData.ref().getAuth();
-            if($scope.user != null){
-                $localstorage.setObject('user', $scope.user);
-                console.log($scope.user);
+                var users = fireBaseData.usersRef();
+                var usersArray = $firebase(users).$asArray();
+
+                usersArray.$loaded(function(list){
+                    var user = list.$getRecord($localstorage.getObject('user').$id);
+                    if(user==null || typeof user["chatrooms"] === 'undefined'){
+                        console.log("The user doesn't exist or had a empty chatrooms");
+
+                        users.child(authData.auth.uid).set({
+                            first_name: $localstorage.getObject('user').first_name,
+                            last_name: $localstorage.getObject('user').last_name,
+                            picture_url: $localstorage.getObject('user').picture_url,
+                            chatrooms: [parseInt($scope.question.$id)]
+                        });
+
+                        $state.go("tab.chats");
+                    }
+                    else{
+                        console.log("The user existed");
+                        var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                        chatrooms.$loaded(function(listChatrooms){
+                            console.log("Vo listChatrooms");
+                            console.log(listChatrooms.length);
+                            if(listChatrooms.length>0) {
+                                var contains = false;
+                                for(var i=0;i<listChatrooms.length;i++){
+                                    console.log($scope.question.$id);
+                                    console.log(listChatrooms[i]);
+                                    if(listChatrooms[i].$value == parseInt($scope.question.$id)){
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+                                if (contains == false) {
+                                    console.log("ne postoese");
+                                    users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt($scope.question.$id));
+                                }
+
+                                $state.go("tab.chats");
+                            }
+                            else{
+                                console.log("prazna");
+                            }
+                        })
+                    }
+
+
+                });
+
                 $state.go("tab.chats");
             }
             else {
 
                 $scope.myPopup = $ionicPopup.show({
-                    template: '<button class="button button-full button-positive" ng-click="saveAndClose();">Facebook</button>',
+                    template: '<button class="button button-full button-positive" ng-click="logInWithFacebook();">Facebook</button>',
                     title: 'Odberi log in',
                     //subTitle: 'Please use normal things',
                     scope: $scope,
@@ -213,163 +117,389 @@ angular.module('starter.controllers', ['ionic.utils'])
                     console.log('Tapped!', res);
                 });
 
-                console.log("After login");
+              /*  console.log("After login");
                 $scope.user = fireBaseData.ref().getAuth();
                 console.log($scope.user);
                 if($scope.user != null){
                     $localstorage.setObject('user', $scope.user);
                     $state.go("tab.chats");
-                }
+                }*/
             }
         };
 
-
-        $scope.saveAndClose = function(){
+        $scope.logInWithFacebook = function(){
             console.log("faceboook");
             $scope.myPopup.close();
 
 
-            console.log($localstorage.getObject('user'));
-            $scope.loggedUser = $localstorage.getObject('user');
+            window.open = cordova.InAppBrowser.open;
+            var ref = fireBaseData.appRef();
 
-            function isEmptyObject(obj){
-                return JSON.stringify(obj) === '{}';
-            }
+            ref.authWithOAuthPopup("facebook", function(error, authData) {
+                if (error) {
+                    console.log("Login Failed!", error);
+                } else {
+                    console.log("Authenticated successfully with payload:", authData);
 
-            if(isEmptyObject($localstorage.getObject('user'))){
+                    console.log("id: "+authData.auth.uid);
+                    console.log("first_name: "+authData.facebook.cachedUserProfile.first_name);
+                    console.log("last_name: "+authData.facebook.cachedUserProfile.last_name);
+                    console.log("picture_url: "+authData.facebook.cachedUserProfile.picture.data.url);
 
-                var ref = new Firebase("https://blistering-torch-6297.firebaseio.com");
-                console.log(ref);
-                ref.authWithOAuthPopup("facebook", function(error, authData) {
-                    if (error) {
-                        console.log("Login Failed!", error);
-                    } else {
-                        console.log("Authenticated successfully with payload:", authData);
-                        console.log("storing...");
-                        console.log(authData);
-                        $localstorage.setObject('user', authData);
-                        console.log("stored");
-                        console.log($localstorage.getObject('user'));
-                        $scope.loggedUser = authData;
-                        $state.go("tab.chats");
-                    }
+                    var users = fireBaseData.usersRef();
+                    var usersArray = $firebase(users).$asArray();
 
-                });
+                    usersArray.$loaded(function(list){
+                        var user = list.$getRecord(authData.auth.uid);
+                        if(user==null || typeof user["chatrooms"] === 'undefined'){
+                            console.log("The user doesn't exist or had a empty chatrooms");
 
-            }
-            else{
-                $scope.loggedUser = $localstorage.getObject('user');
-                console.log($scope.loggedUser.id);
-            }
+                            users.child(authData.auth.uid).set({
+                                first_name: authData.facebook.cachedUserProfile.first_name,
+                                last_name: authData.facebook.cachedUserProfile.last_name,
+                                picture_url: authData.facebook.cachedUserProfile.picture.data.url,
+                                chatrooms: [parseInt($scope.question.$id)]
+                            });
+                            $localstorage.setObject('user', {
+                                $id: authData.auth.uid,
+                                first_name: authData.facebook.cachedUserProfile.first_name,
+                                last_name: authData.facebook.cachedUserProfile.last_name,
+                                picture_url: authData.facebook.cachedUserProfile.picture.data.url
+                            });
+                            $state.go("tab.chats");
+                        }
+                        else{
+                            console.log("The user existed");
+                            var chatrooms = $firebase(users.child(authData.auth.uid).child("chatrooms")).$asArray();
+                            chatrooms.$loaded(function(listChatrooms){
+                                console.log("Vo listChatrooms");
+                                console.log(listChatrooms.length);
+                                if(listChatrooms.length>0) {
+                                    var contains = false;
+                                    for(var i=0;i<listChatrooms.length;i++){
+                                        console.log($scope.question.$id);
+                                        console.log(listChatrooms[i]);
+                                        if(listChatrooms[i].$value == parseInt($scope.question.$id)){
+                                            contains = true;
+                                            break;
+                                        }
+                                    }
+                                    if (contains == false) {
+                                        console.log("ne postoese");
+                                        users.child(authData.auth.uid).child("chatrooms").child(listChatrooms.length).set(parseInt($scope.question.$id));
+                                    }
+                                    $localstorage.setObject('user', {
+                                        $id: authData.auth.uid,
+                                        first_name: authData.facebook.cachedUserProfile.first_name,
+                                        last_name: authData.facebook.cachedUserProfile.last_name,
+                                        picture_url: authData.facebook.cachedUserProfile.picture.data.url
+                                    });
+                                    console.log($localstorage.getObject('user'));
+                                    console.log($localstorage.getObject('user').$id);
+                                    console.log($localstorage.getObject('user').chatrooms);
+                                    $state.go("tab.chats");
+                                }
+                                else{
+                                    console.log("prazna");
+                                }
+                            })
+                        }
+
+                        delete window.open;
+
+                    });
+
+
+                }
+
+            });
+
+        }
+    })
+.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading) {
+
+        function showLoading(){
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
+            });
         }
 
+        function hideLoading(){
+            $ionicLoading.hide();
+        }
+
+        showLoading();
+
+        $scope.$parent.wasChatLoaded=false;
+
+        var scoolPrograms = fireBaseData.schoolProgramsRef();
+
+        scoolPrograms.$loaded(function(list){
+            $ionicLoading.hide();
+            $scope.schoolPrograms = list;
+            console.log($scope.schoolPrograms);
+        })
 
 
+        $scope.choosenLanguage = function(id){
+            showLoading();
+            $localstorage.set('schoolProgramId', id);
+            var listTypesOfEducationsIds = $scope.schoolPrograms[id]["types-of-education"];
+            $scope.typesOfEducation= Array();
+            var typesOfEducations = fireBaseData.typesOfEducationRef();
+            typesOfEducations.$loaded(function(list){
+                for(var i=0; i<listTypesOfEducationsIds.length;i++){
+                    $scope.typesOfEducation.push(list[listTypesOfEducationsIds[i]]);
+                }
+                hideLoading();
+            })
+            $scope.showSchoolPrograms = false;
+            $scope.showTypesEducation = true;
+        };
+
+        $scope.choosenTypeOfEducation = function(id){
+            showLoading();
+            $localstorage.set('typeOfEducationId', id);
+            var listYearsOfStudyIds = $scope.typesOfEducation[id]["years-of-study"];
+            $scope.yearsOfStudy= Array();
+            var yearsOfStudy = fireBaseData.yearsOfStudyRef();
+            yearsOfStudy.$loaded(function(list){
+                for(var i=0; i<listYearsOfStudyIds.length;i++){
+                    $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
+                }
+                hideLoading();
+            })
+            $scope.showTypesEducation = false;
+            $scope.showYearsOfStudy = true;
+        };
+
+        $scope.choosenYearOfStudy = function(id){
+            showLoading();
+            $localstorage.set('yearOfStudyId', id);
+            var listEducationPlansIds = $scope.yearsOfStudy[id]["education-plans"];
+            $scope.educationPlans= Array();
+            var educationPlans = fireBaseData.educationPlansRef();
+            educationPlans.$loaded(function(list){
+                for(var i=0; i<listEducationPlansIds.length;i++){
+                    $scope.educationPlans.push(list[listEducationPlansIds[i]]);
+                }
+                hideLoading();
+            })
+            $scope.showYearsOfStudy = false;
+            $scope.showEducationPlans = true;
+        };
+
+        $scope.choosenEducationPlan = function(id){
+            showLoading();
+            $localstorage.set('educationPlanId', id);
+            var listSubjectsIds = $scope.educationPlans[id]["subjects"];
+            $scope.subjects= Array();
+            var subjects = fireBaseData.subjectsRef();
+            subjects.$loaded(function(list){
+                for(var i=0; i<listSubjectsIds.length;i++){
+                    $scope.subjects.push(list[listSubjectsIds[i]]);
+                }
+                hideLoading();
+            })
+            $scope.showEducationPlans = false;
+            $scope.showSubjects = true;
+        };
+
+        if (checkSelectionOfStudentProfile()) {
+            $scope.showSchoolPrograms = false;
+            $scope.showTypesEducation = false;
+            $scope.showEducationPlans = false;
+            $scope.showYearsOfStudy = false;
+            $scope.showSubjects = false;
+            $scope.showSelectedSubjects=true;
+            $scope.showQuestions=false;
+
+            $scope.selectedSubjectsIds =  $localstorage.getObject('selectedSubjectsIds');
+            $scope.selectedSubjects= Array();
+            var subjects = fireBaseData.subjectsRef();
+            subjects.$loaded(function(list){
+                for(var i=0; i<$scope.selectedSubjectsIds.length;i++){
+                    $scope.selectedSubjects.push(list[$scope.selectedSubjectsIds[i]]);
+                }
+                hideLoading();
+                $scope.showSchoolPrograms = false;
+                $scope.showTypesEducation = false;
+                $scope.showEducationPlans = false;
+                $scope.showYearsOfStudy = false;
+                $scope.showSubjects = false;
+                $scope.showSelectedSubjects=true;
+                $scope.showQuestions=false;
+            })
+
+        }
+        else {
+            $scope.showSchoolPrograms = true;
+            $scope.selected=[];
+            $scope.selectedSubjects=[];
+        }
+
+        $scope.showSelected = function() {
+            $scope.selectedSubjectsIds=[];
+            for(key in $scope.selected){
+                console.log(key);
+                $scope.selectedSubjectsIds.push(key);
+            }
+            console.log($scope.selectedSubjectsIds);
+            $localstorage.setObject('selectedSubjectsIds', $scope.selectedSubjectsIds);
+
+            $scope.selectedSubjects= Array();
+            var subjects = fireBaseData.subjectsRef();
+            subjects.$loaded(function(list){
+                for(var i=0; i<$scope.selectedSubjectsIds.length;i++){
+                    $scope.selectedSubjects.push(list[$scope.selectedSubjectsIds[i]]);
+                }
+                hideLoading();
+            })
+
+            $scope.showSubjects = false;
+            $scope.showSelectedSubjects=true;
+        };
+
+        $scope.showSelectedSubject = function(id){
+            $scope.choise = id;
+            $localstorage.set('choiseId', id);
+        };
 
         function checkSelectionOfStudentProfile(){
             console.log("Povikana checkSelection");
 
-            console.log( $localstorage.getObject('selectedSubjectsNames'));
-            console.log( $localstorage.get('language') +"\n"+
-                $localstorage.get('typeOfEducation') +"\n"+
-                $localstorage.get('yearOfStudy') +"\n"+
-                $localstorage.get('educationPlan') +"\n"+
-                $localstorage.getObject('selectedSubjectsNames') +"\n"+
-                $localstorage.getObject('selectedSubjectsNames').length);
+            console.log( $localstorage.get('schoolProgramId') +"\n"+
+                $localstorage.get('typeOfEducationId') +"\n"+
+                $localstorage.get('yearOfStudyId') +"\n"+
+                $localstorage.get('educationPlanId') +"\n"+
+                $localstorage.getObject('selectedSubjectsIds') +"\n"+
+                $localstorage.getObject('selectedSubjectsIds').length);
 
-            if( typeof $localstorage.get('language') === 'undefined' ||
-                typeof $localstorage.get('typeOfEducation') === 'undefined' ||
-                typeof $localstorage.get('yearOfStudy') === 'undefined' ||
-                typeof $localstorage.get('educationPlan') === 'undefined' ||
-                typeof $localstorage.getObject('selectedSubjectsNames') === 'undefined' ||
-                $localstorage.getObject('selectedSubjectsNames').length < 1){
+            if( typeof $localstorage.get('schoolProgramId') === 'undefined' ||
+                typeof $localstorage.get('typeOfEducationId') === 'undefined' ||
+                typeof $localstorage.get('yearOfStudyId') === 'undefined' ||
+                typeof $localstorage.get('educationPlanId') === 'undefined' ||
+                typeof $localstorage.getObject('selectedSubjectsIds') === 'undefined' ||
+                $localstorage.getObject('selectedSubjectsIds').length < 1){
                     return false;
             }
             return true;
         }
 })
-.controller('ChatsCtrl', function($scope, fireBaseData, $firebase, $localstorage, Chats, $stateParams) {
+.controller('ChatsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $stateParams, $ionicLoading) {
+        function showLoading(){
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
+            });
+        }
+
+        function hideLoading(){
+            $ionicLoading.hide();
+        }
+
+
         $scope.$parent.wasChatLoaded=false;
-        var promise = Chats.all();
-
-        promise.then(function(chats) {
-            $scope.$parent.chats = chats;
-            console.log("Chats "+$scope.chats);
-        }, function(reason) {
-            console.log('Failed: ' + reason);
-        }, function(update) {
-            alert('Got notification: ' + update);
-        });
-
+        if(JSON.stringify($localstorage.getObject('user')) != "{}") {
+            showLoading();
+            console.log("Korisnikot ne e prazen string");
+            var usersRef = fireBaseData.usersRef();
+            var user = usersRef.child($localstorage.getObject('user').$id);
+            user.on("value", function (us) {
+                var u = us.val();
+                console.log("Korisnikot e izloudan");
+                console.log(u);
+                console.log(typeof u["chatrooms"]);
+                if(typeof u["chatrooms"] != 'undefined'){
+                    console.log("Chatrooms ne e undefined");
+                    var chatroomsIds = u["chatrooms"];
+                    console.log("chatroomsIds: "+chatroomsIds);
+                    $scope.questions = Array();
+                    var questions = fireBaseData.questionsRef();
+                    questions.$loaded(function(list){
+                        for(var i=0; i<chatroomsIds.length;i++){
+                            $scope.questions.push(list[chatroomsIds[i]]);
+                        }
+                        hideLoading();
+                    })
+                }
+            })
+        }
 })
-    .controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $localstorage, $firebase, $state) {
+.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $localstorage, $firebase, $state, fireBaseData, $ionicPlatform) {
 
-
-
-        if($scope.$parent.chats == null)
+        /*$ionicPlatform.onHardwareBackButton(function() {
+            event.preventDefault();
+            event.stopPropagation();
             $state.go("tab.chats");
-        //if($scope.$parent.wasChatLoaded == false) {
-            console.log("Se izvrsuva prevzemanjeto na poraki");
-            //$scope.$parent.wasChatLoaded=true;
-            $scope.myId = $localstorage.getObject('user')["uid"];
+        });*/
+
+        $timeout(function(){
+            $ionicScrollDelegate.scrollBottom(false);}
+            ,30);
+
+        /*$scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+            viewData.enableBack = true;
+            viewData.shouldAnimate = true;
+            console.log(viewData);
+        });*/
+
+
+        if(typeof $scope.messages === 'undefined' || $scope.messages.length==0 ) {
+            $scope.myId = $localstorage.getObject('user').$id;
+
             console.log($location.path());
             var array = $location.path().split("/");
+            var questionId = array[array.length - 1];
             console.log(array[array.length - 1]);
-            var text = $scope.$parent.chats[array[array.length - 1]].text;
-            console.log(text);
-            console.log("The user picture is " + $localstorage.getObject('user'));
 
-            var url = "https://blistering-torch-6297.firebaseio.com/ma-app/school-programs/" + $localstorage.get("languageIndex") + "/types-of-education/" + $localstorage.get("typeOfEducationIndex") + "/years-of-study/" + $localstorage.get("yearOfStudyIndex") + "/education-plans/" + $localstorage.get("educationPlanIndex") + "";
-            console.log(url);
-
-            var reference = new Firebase(url);
-            reference.on("value", function (snapshot) {
-                var educationPlan = snapshot.val();
-                console.log(snapshot.val());
-                var subjects = [];
-                var found = false;
-                subjects = educationPlan["subjects"];
-                for (var i = 0; i < subjects.length; i++) {
-                    console.log("Vo for");
-                    var questions = [];
-
-                    questions = subjects[i]["questions"];
-                    console.log(questions);
-                    for (var j = 0; j < questions.length; j++) {
-                        console.log(questions[i].content);
-                        console.log(text);
-                        if (questions[i].content == text) {
-                            console.log("go najde");
-                            $localstorage.set("subjectIndex", i);
-                            $localstorage.set("questionIndex", j);
-                            found = true;
-                            break;
-                        }
+            var questionRef = fireBaseData.appRef().child("questions").child(parseInt(questionId));
+            questionRef.on('value', function (q) {
+                var question = q.val();
+                console.log(question.text);
+                if (typeof question["chatroom"] != 'undefined') {
+                    if (typeof question["chatroom"]["messages"] != 'undefined') {
+                        var ref = questionRef.child("chatroom").child("messages");
+                        ref.on("value", function (snapshot) {
+                            $scope.messages = $firebase(ref).$asArray();
+                            console.log($scope.messages);
+                            $ionicScrollDelegate.resize();
+                            $timeout(function() {
+                                $ionicScrollDelegate.scrollBottom(true);
+                            }, 300);
+                        });
                     }
-                    if (found == true)
-                        break;
+                } else {
+                    questionRef.child("chatroom").set({
+                        messages: [0]
+                    }, function(error){
+                        console.log(error);
+                        if(error==null){
+                            var ref = questionRef.child("chatroom").child("messages");
+                            ref.on("value", function (snapshot) {
+                                $scope.messages = $firebase(ref).$asArray();
+                                console.log($scope.messages);
+                                $ionicScrollDelegate.resize();
+                                $timeout(function() {
+                                    $ionicScrollDelegate.scrollBottom(true);
+                                }, 300);
+
+
+                            });
+                        }
+                    });
                 }
-                var newUrl = url + "/subjects/" + $localstorage.get("subjectIndex") + "/questions/" + $localstorage.get("questionIndex") + "/chatroom/messages";
-                console.log(newUrl);
 
-                var ref = new Firebase(newUrl);
-                ref.on("value", function (snapshot) {
-                    $scope.messages = $firebase(ref).$asArray();
-
-                });
+            })
+        }
 
 
-                $timeout(function () {
-                    $ionicScrollDelegate.scrollBottom(false);
-                }, 300);
 
+        $timeout(function() {
+            $ionicScrollDelegate.scrollBottom(true);
+        }, 300);
+        $ionicScrollDelegate.resize();
 
-                console.log($scope.messages);
-
-
-            });
-        //}
-        $scope.myId = $localstorage.getObject('user')["uid"];
+        $scope.myId = $localstorage.getObject('user').$id;
 
         $scope.hideTime = true;
 
@@ -378,25 +508,22 @@ angular.module('starter.controllers', ['ionic.utils'])
 
         $scope.sendMessage = function() {
 
-
-            console.log("The user picture is "+$localstorage.getObject('user')["facebook"]["cachedUserProfile"]["picture"]["data"]["url"]);
-
-            alternate = !alternate;
-
             var d = new Date();
             d = d.toLocaleTimeString().replace(/:\d+ /, ' ');
-
             $scope.messages.$add({
-                userId: $scope.myId,
+                user_id: $scope.myId,
                 text: $scope.data.message,
                 time: d,
-                userPicture: $localstorage.getObject('user')["facebook"]["cachedUserProfile"]["picture"]["data"]["url"]
+                user_picture: $localstorage.getObject('user')["picture_url"]
             });
 
             delete $scope.data.message;
 
-            $ionicScrollDelegate.scrollBottom(false);
-            //$ionicScrollDelegate.resize();
+
+            $timeout(function() {
+                $ionicScrollDelegate.scrollBottom(true);
+            }, 300);
+            $ionicScrollDelegate.resize();
 
         };
 
@@ -418,12 +545,15 @@ angular.module('starter.controllers', ['ionic.utils'])
             // cordova.plugins.Keyboard.close();
         };
 
+        $scope.myGoBack = function(){
+            $state.go("tab.chats");
+        }
 
         $scope.data = {};
 
     })
 .controller('AccountCtrl', function($scope, fireBaseData, $firebase, $localstorage) {
-        $scope.$parent.wasChatLoaded=false;
+        /*$scope.$parent.wasChatLoaded=false;
 
 		$scope.loggedUser = $localstorage.getObject('user');
 
@@ -452,6 +582,6 @@ angular.module('starter.controllers', ['ionic.utils'])
 		else{
 			$scope.loggedUser = $localstorage.getObject('user');
 			console.log($scope.loggedUser.id);
-		}
+		}*/
 
 });

@@ -7,18 +7,18 @@
 
 <link href="css/messages.css" rel="stylesheet">
 
-<ion-pane class="messaging-view">
-
+<ion-view class="messaging-view">
 
 <ion-content class="content-stable"
              on-swipe-left="hideTime = false"
              on-swipe-right="hideTime = true">
 
   <div ng-repeat="message in messages"
-       ng-class="{other: message.userId != myId}"
-       class="messages" >
+       ng-class="{other: message['user_id'] != myId}"
+       class="messages" ng-show="message['user_id'].length>0" >
 
-    <img style="width:50px; height:50px;" ng-show="message.userId == myId" ng-src="{{message.userPicture}}"/>
+
+    <img style="width:50px; height:50px;" ng-show="message['user_id'] == myId" ng-src="{{message['user_picture']}}"/>
 
     <div class="message" ng-class="{'slide-right': hideTime, '': !hideTime}">
       <span class="spanMessage">{{ message.text }}</span>
@@ -26,8 +26,10 @@
 
     <div class="time" ng-class="{'slide-right': hideTime, '': !hideTime}"><!--{{message.time}}--></div>
 
-    <img style="width:50px; height:50px; background:yellow;" ng-show="message.userId != myId" ng-src="{{message.userPicture}}"/>
+    <img style="width:50px; height:50px; background:yellow;" ng-show="message['user_id'] != myId" ng-src="{{message['user_picture']}}"/>
+
   </div>
+
 
 </ion-content>
 
@@ -35,8 +37,8 @@
   <label class="item-input-wrapper">
     <input type="text" placeholder="Type your message" on-return="sendMessage(); closeKeyboard()" ng-model="data.message" on-focus="inputUp()" on-blur="inputDown()" />
   </label>
-  <button class="button button-clear" ng-click="sendMessage()">
+  <a class="button button-clear" ng-click="sendMessage()">
     Send
-  </button>
+  </a>
 </ion-footer-bar>
-</ion-pane>
+</ion-view>

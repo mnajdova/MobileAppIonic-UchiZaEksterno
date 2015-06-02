@@ -1,25 +1,32 @@
 <ion-view title="Прилагодувања">
   <ion-content>
     <div class="list" ng-show="showLoginForm">
-      <label class="item item-input">
+     <!-- <label class="item item-input">
         <span class="input-label">Email</span>
         <input type="text" ng-model="em"/>
       </label>
       <label class="item item-input">
         <span class="input-label">Password</span>
         <input type="password" ng-model="pwd"/>
-      </label>
-      <button class="button button-block button-positive" ng-click="login(em, pwd)">
-        Login
+      </label>-->
+      <button class="button button-block button-positive" ng-click="loginWithFacebook()">
+        Логирај се со Facebook
       </button>
+      <a class="button button-block button-assertive" href="#/tab/account/login">
+        Логирај се со е-меил и лозинка
+      </a>
+      <a class="button button-block button-dark" href="#/tab/account/register">
+        Регистрирај се
+      </a>
     </div>
     <div class="card" ng-hide="showLoginForm">
       <div class="item item-text-wrap">
-        You are logged in as {{loggedUser.name}}
+        You are logged in as {{loggedUser.first_name}} {{loggedUser.last_name}}
       </div>
     </div>
-    <button class="button button-stable" ng-click="logout()" ng-hide="showLoginForm">
+    <button class="button button-stable" style="margin-left:10px"ng-click="logout()" ng-hide="showLoginForm">
       Logout
     </button>
+
   </ion-content>
 </ion-view>

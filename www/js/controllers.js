@@ -1,20 +1,21 @@
-angular.module('starter.controllers', ['ionic.utils'])
-    .controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $location) {
+angular.module('starter.controllers', ['ionic.utils']).
+controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $ionicHistory, $location, $rootScope) {
         var array = $location.path().split("/");
         $scope.choise = array[array.length - 1];
         console.log(array[array.length - 1]);
 
-        var listQuestionsIds=[];
+        var listQuestionsIds = [];
 
         var subjects = fireBaseData.subjectsRef();
-        subjects.$loaded(function(list){
+
+        subjects.$loaded(function (list) {
             listQuestionsIds = list[$scope.choise]["questions"];
             console.log(list[$scope.choise]);
             console.log(list);
-            $scope.questions= Array();
+            $scope.questions = Array();
             var questions = fireBaseData.questionsRef();
-            questions.$loaded(function(list){
-                for(var i=0; i<listQuestionsIds.length;i++){
+            questions.$loaded(function (list) {
+                for (var i = 0; i < listQuestionsIds.length; i++) {
                     $scope.questions.push(list[listQuestionsIds[i]]);
                 }
                 $scope.index = 0;
@@ -24,60 +25,68 @@ angular.module('starter.controllers', ['ionic.utils'])
             })
         })
 
-        $scope.nextQuestion = function(){
-            var nextIndex = ($scope.index+1) % $scope.questions.length;
+        $scope.nextQuestion = function () {
+            var nextIndex = ($scope.index + 1) % $scope.questions.length;
             $scope.question = $scope.questions[nextIndex];
             $scope.index = nextIndex;
-            console.log(typeof $scope.question['picture-url']);
             console.log($scope.question);
         };
 
-        $scope.prevQuestion = function(){
+        $scope.prevQuestion = function () {
             var prevIndex = 0;
-            if($scope.index==0)
-                prevIndex = $scope.questions.length-1;
+            if ($scope.index == 0)
+                prevIndex = $scope.questions.length - 1;
             else
-                prevIndex = $scope.index-1;
+                prevIndex = $scope.index - 1;
             $scope.question = $scope.questions[prevIndex];
+
             $scope.index = prevIndex;
 
             console.log($scope.question);
         };
 
-        $scope.joinChatRoom = function(){
+        $scope.joinChatRoom = function () {
 
-            if(JSON.stringify($localstorage.getObject('user')) != "{}"){
-
+            if (JSON.stringify($localstorage.getObject('user')) != "{}") {
+                console.log("Userot e veke logiran");
                 var users = fireBaseData.usersRef();
                 var usersArray = $firebase(users).$asArray();
 
-                usersArray.$loaded(function(list){
+                usersArray.$loaded(function (list) {
                     var user = list.$getRecord($localstorage.getObject('user').$id);
-                    if(user==null || typeof user["chatrooms"] === 'undefined'){
+                    if (user == null || typeof user["chatrooms"] === 'undefined') {
                         console.log("The user doesn't exist or had a empty chatrooms");
 
-                        users.child(authData.auth.uid).set({
+                        users.child($localstorage.getObject('user').$id).set({
                             first_name: $localstorage.getObject('user').first_name,
                             last_name: $localstorage.getObject('user').last_name,
                             picture_url: $localstorage.getObject('user').picture_url,
                             chatrooms: [parseInt($scope.question.$id)]
-                        });
-
-                        $state.go("tab.chats");
+                        }, function(err){
+                            console.log(err);
+                            //$state.transitionTo("tab.chats", $state.$current.params, {reload: true});
+                            $state.transitionTo("tab.chats", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                        }
+                        );
                     }
-                    else{
+                    else {
                         console.log("The user existed");
                         var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
-                        chatrooms.$loaded(function(listChatrooms){
+                        chatrooms.$loaded(function (listChatrooms) {
                             console.log("Vo listChatrooms");
                             console.log(listChatrooms.length);
-                            if(listChatrooms.length>0) {
+                            if (listChatrooms.length > 0) {
                                 var contains = false;
-                                for(var i=0;i<listChatrooms.length;i++){
+                                for (var i = 0; i < listChatrooms.length; i++) {
                                     console.log($scope.question.$id);
-                                    console.log(listChatrooms[i]);
-                                    if(listChatrooms[i].$value == parseInt($scope.question.$id)){
+                                    console.log(listChatrooms[i].$value);
+                                    if (listChatrooms[i].$value == parseInt($scope.question.$id)) {
                                         contains = true;
+                                        console.log("Go najde");
                                         break;
                                     }
                                 }
@@ -86,10 +95,23 @@ angular.module('starter.controllers', ['ionic.utils'])
                                     users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt($scope.question.$id));
                                 }
 
-                                $state.go("tab.chats");
+                                $state.transitionTo("tab.chats", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });;
                             }
-                            else{
-                                console.log("prazna");
+                            else {
+                                users.child($localstorage.getObject('user').$id).set({
+                                    first_name: $localstorage.getObject('user').first_name,
+                                    last_name: $localstorage.getObject('user').last_name,
+                                    picture_url: $localstorage.getObject('user').picture_url,
+                                    chatrooms: [parseInt($scope.question.$id)]
+                                }, function(err){$state.transitionTo("tab.chats", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });});
                             }
                         })
                     }
@@ -97,126 +119,31 @@ angular.module('starter.controllers', ['ionic.utils'])
 
                 });
 
-                $state.go("tab.chats");
+                $state.transitionTo("tab.chats", {}, {
+                    reload: true,
+                    inherit: false,
+                    notify: true
+                });
             }
             else {
-
-                $scope.myPopup = $ionicPopup.show({
-                    template: '<button class="button button-full button-positive" ng-click="logInWithFacebook();">Facebook</button>',
-                    title: 'Odberi log in',
-                    //subTitle: 'Please use normal things',
-                    scope: $scope,
-                    buttons: [
-                        {
-                            text: 'Cancel'
-                        }
-                    ]
+                confirmPopup = $ionicPopup.confirm({
+                        title: 'Задолжителна најава',
+                        template: 'За да се приклучите на собата за разговор за ова прашање мора да се најавите!'
                 });
-
-                $scope.myPopup.then(function (res) {
-                    console.log('Tapped!', res);
+                confirmPopup.then(function(res) {
+                    if(res==true) {
+                        $state.go("tab.account");
+                        $rootScope.question = $scope.question;
+                        console.log($rootScope.question);
+                    }
                 });
-
-              /*  console.log("After login");
-                $scope.user = fireBaseData.ref().getAuth();
-                console.log($scope.user);
-                if($scope.user != null){
-                    $localstorage.setObject('user', $scope.user);
-                    $state.go("tab.chats");
-                }*/
             }
         };
-
-        $scope.logInWithFacebook = function(){
-            console.log("faceboook");
-            $scope.myPopup.close();
-
-
-            window.open = cordova.InAppBrowser.open;
-            var ref = fireBaseData.appRef();
-
-            ref.authWithOAuthPopup("facebook", function(error, authData) {
-                if (error) {
-                    console.log("Login Failed!", error);
-                } else {
-                    console.log("Authenticated successfully with payload:", authData);
-
-                    console.log("id: "+authData.auth.uid);
-                    console.log("first_name: "+authData.facebook.cachedUserProfile.first_name);
-                    console.log("last_name: "+authData.facebook.cachedUserProfile.last_name);
-                    console.log("picture_url: "+authData.facebook.cachedUserProfile.picture.data.url);
-
-                    var users = fireBaseData.usersRef();
-                    var usersArray = $firebase(users).$asArray();
-
-                    usersArray.$loaded(function(list){
-                        var user = list.$getRecord(authData.auth.uid);
-                        if(user==null || typeof user["chatrooms"] === 'undefined'){
-                            console.log("The user doesn't exist or had a empty chatrooms");
-
-                            users.child(authData.auth.uid).set({
-                                first_name: authData.facebook.cachedUserProfile.first_name,
-                                last_name: authData.facebook.cachedUserProfile.last_name,
-                                picture_url: authData.facebook.cachedUserProfile.picture.data.url,
-                                chatrooms: [parseInt($scope.question.$id)]
-                            });
-                            $localstorage.setObject('user', {
-                                $id: authData.auth.uid,
-                                first_name: authData.facebook.cachedUserProfile.first_name,
-                                last_name: authData.facebook.cachedUserProfile.last_name,
-                                picture_url: authData.facebook.cachedUserProfile.picture.data.url
-                            });
-                            $state.go("tab.chats");
-                        }
-                        else{
-                            console.log("The user existed");
-                            var chatrooms = $firebase(users.child(authData.auth.uid).child("chatrooms")).$asArray();
-                            chatrooms.$loaded(function(listChatrooms){
-                                console.log("Vo listChatrooms");
-                                console.log(listChatrooms.length);
-                                if(listChatrooms.length>0) {
-                                    var contains = false;
-                                    for(var i=0;i<listChatrooms.length;i++){
-                                        console.log($scope.question.$id);
-                                        console.log(listChatrooms[i]);
-                                        if(listChatrooms[i].$value == parseInt($scope.question.$id)){
-                                            contains = true;
-                                            break;
-                                        }
-                                    }
-                                    if (contains == false) {
-                                        console.log("ne postoese");
-                                        users.child(authData.auth.uid).child("chatrooms").child(listChatrooms.length).set(parseInt($scope.question.$id));
-                                    }
-                                    $localstorage.setObject('user', {
-                                        $id: authData.auth.uid,
-                                        first_name: authData.facebook.cachedUserProfile.first_name,
-                                        last_name: authData.facebook.cachedUserProfile.last_name,
-                                        picture_url: authData.facebook.cachedUserProfile.picture.data.url
-                                    });
-                                    console.log($localstorage.getObject('user'));
-                                    console.log($localstorage.getObject('user').$id);
-                                    console.log($localstorage.getObject('user').chatrooms);
-                                    $state.go("tab.chats");
-                                }
-                                else{
-                                    console.log("prazna");
-                                }
-                            })
-                        }
-
-                        delete window.open;
-
-                    });
-
-
-                }
-
-            });
-
-        }
-    })
-.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading) {
+})
+.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+        $rootScope.invoker="";//default
+        $rootScope.question = {};//default
+        $rootScope.noUserPictreUrl = "https://photos-2.dropbox.com/t/2/AAAOehbC9MCl35ZoFVnc1gAx1DBKrMkW6wQfNWhuEtT7yg/12/116819795/png/32x32/1/_/1/2/Users-User-Male-icon.png/CNOO2jcgASACIAMgBCAFIAYgBygBKAI/RWAwanIYXIPanioHhn4MRyh2QcPUXatXFDudKhoDoCQ?size=1024x768&size_mode=2"
 
         function showLoading(){
             $ionicLoading.show({
@@ -386,7 +313,8 @@ angular.module('starter.controllers', ['ionic.utils'])
             return true;
         }
 })
-.controller('ChatsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $stateParams, $ionicLoading) {
+.controller('ChatsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $stateParams, $ionicLoading, $ionicPopup, $rootScope, $state) {
+
         function showLoading(){
             $ionicLoading.show({
                 template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
@@ -397,9 +325,7 @@ angular.module('starter.controllers', ['ionic.utils'])
             $ionicLoading.hide();
         }
 
-
-        $scope.$parent.wasChatLoaded=false;
-        if(JSON.stringify($localstorage.getObject('user')) != "{}") {
+        function getChatrooms(){
             showLoading();
             console.log("Korisnikot ne e prazen string");
             var usersRef = fireBaseData.usersRef();
@@ -422,27 +348,33 @@ angular.module('starter.controllers', ['ionic.utils'])
                         hideLoading();
                     })
                 }
+                else
+                    hideLoading();
             })
         }
+
+        if(JSON.stringify($localstorage.getObject('user')) != "{}") {
+            console.log("se povikuva getchatrooms");
+            getChatrooms();
+        }
+        else{
+            confirmPopup = $ionicPopup.confirm({
+                title: 'Задолжителна најава',
+                template: 'За да ги прегледувате вашите соби за разговор мора да сте најавен.'
+            });
+            confirmPopup.then(function(res) {
+                if(res==true) {
+                    $rootScope.question = {};
+                    $rootScope.invoker = "chats";
+                    $state.go("tab.account");
+                }
+            });
+        }
 })
-.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $localstorage, $firebase, $state, fireBaseData, $ionicPlatform) {
-
-        /*$ionicPlatform.onHardwareBackButton(function() {
-            event.preventDefault();
-            event.stopPropagation();
-            $state.go("tab.chats");
-        });*/
-
+.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $localstorage, $firebase, $state, $rootScope, fireBaseData, $ionicPlatform) {
         $timeout(function(){
             $ionicScrollDelegate.scrollBottom(false);}
             ,30);
-
-        /*$scope.$on('$ionicView.beforeEnter', function (event, viewData) {
-            viewData.enableBack = true;
-            viewData.shouldAnimate = true;
-            console.log(viewData);
-        });*/
-
 
         if(typeof $scope.messages === 'undefined' || $scope.messages.length==0 ) {
             $scope.myId = $localstorage.getObject('user').$id;
@@ -552,36 +484,545 @@ angular.module('starter.controllers', ['ionic.utils'])
         $scope.data = {};
 
     })
-.controller('AccountCtrl', function($scope, fireBaseData, $firebase, $localstorage) {
-        /*$scope.$parent.wasChatLoaded=false;
+.controller('RegisterCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state, $ionicLoading) {
 
-		$scope.loggedUser = $localstorage.getObject('user');
+        function showLoading(){
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
+            });
+        }
 
-		function isEmptyObject(obj){
-			return JSON.stringify(obj) === '{}';
-		}
+        function hideLoading(){
+            $ionicLoading.hide();
+        }
 
-		if(isEmptyObject($localstorage.getObject('user'))){
-			var ref = new Firebase("https://blistering-torch-6297.firebaseio.com");
-            console.log(ref);
-			ref.authWithOAuthPopup("facebook", function(error, authData) {
-			if (error) {
-				console.log("Login Failed!", error);
-			} else {
-				console.log("Authenticated successfully with payload:", authData);
-				console.log("storing...");
-				$localstorage.setObject('user', authData["facebook"]["cachedUserProfile"]);
-				console.log("stored");
-				console.log($localstorage.getObject('user'));
-				$scope.loggedUser = authData["facebook"]["cachedUserProfile"];
-			}
+        if(JSON.stringify($localstorage.getObject('user'))!="{}"){
+            $state.transitionTo("tab.account", {}, {
+                reload: true,
+                inherit: false,
+                notify: true
+            });
+        }
 
-			});
+            $scope.data = {
+                fn: "",
+                ln: "",
+                em: "",
+                pwd: ""
+            };
 
-		}
-		else{
-			$scope.loggedUser = $localstorage.getObject('user');
-			console.log($scope.loggedUser.id);
-		}*/
+        $scope.errormessage="";
+        $scope.registerUser = function (fn, ln, em, pwd) {
+            console.log(fn);
+            if(typeof fn == 'undefined' || fn==""){
+                $scope.errormessage = "Внесете го вашето име.";
 
+            }else if(typeof ln == 'undefined' || ln==""){
+                $scope.errormessage = "Внесете го вашето презиме.";
+
+            }else if(typeof em == 'undefined' || em==""){
+                $scope.errormessage = "Внесете го вашиот меил.";
+
+            }else if(typeof pwd == 'undefined' || pwd==""){
+                $scope.errormessage = "Внесете лозинка.";
+
+            }
+            else {
+                var ref = new Firebase("https://uchizaeksterno.firebaseio.com");
+                showLoading();
+                ref.createUser({
+                    email: em,
+                    password: pwd
+                }, function (error, authData) {
+                    if (error) {
+                        hideLoading();
+                        switch (error.code) {
+                            case "INVALID_EMAIL":
+                                console.log("The specified user account email is invalid.");
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "E-маил адресата е невалидна.";
+                                });
+                                break;
+                            case "INVALID_PASSWORD":
+                                console.log("The specified user account password is incorrect.");
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "Специфицираната лозинка е невалидна.";
+                                });
+                                break;
+                            case "INVALID_USER":
+                                console.log("The specified user account does not exist.");
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "Оваа корисничка сметка не постои.";
+                                });
+                                break;
+                            default:
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "Настана грешка, ве молиме проверете ги вашите податоци";
+                                });
+                        }
+                    } else {
+                        ref.authWithPassword({
+                            email: em,
+                            password: pwd
+                        }, function (error, authData) {
+                            if (error) {
+                                console.log("Login Failed!", error);
+                            } else {
+                                console.log("Authenticated successfully with payload:", authData);
+
+                                $localstorage.setObject('user', {
+                                    $id: authData.auth.uid,
+                                    first_name: fn,
+                                    last_name: ln,
+                                    picture_url: $rootScope.noUserPictreUrl
+                                });
+
+                                var users = fireBaseData.usersRef();
+                                users.child(authData.auth.uid).set({
+                                        first_name: fn,
+                                        last_name: ln,
+                                        picture_url: $rootScope.noUserPictreUrl
+                                    }, function () {
+                                        console.log("Se stavaat da se prazni");
+                                        $scope.$apply(function(){
+                                            $scope.data = {
+                                                fn: "",
+                                                ln: "",
+                                                em: "",
+                                                pwd: ""
+                                            };
+
+                                        });
+                                        hideLoading();
+                                        console.log(JSON.stringify($rootScope.question));
+                                        if ($rootScope.invoker == 'chats') {
+                                            $state.transitionTo("tab.account", {}, {
+                                                reload: true,
+                                                inherit: false,
+                                                notify: true
+                                            });
+                                            $rootScope.shouldGoTo = "chat";
+                                        }
+                                        else if(JSON.stringify($rootScope.question) != "{}" ) {
+                                            addChatroomIfNeeded();
+                                        }else{
+                                            $state.transitionTo("tab.account", {}, {
+                                                reload: true,
+                                                inherit: false,
+                                                notify: true
+                                            });
+                                            $rootScope.shouldGoTo="account";
+                                        }
+                                    }
+                                );
+
+
+                            }
+                        })
+
+                    }
+                });
+            }
+        }
+
+        function addChatroomIfNeeded(){
+            console.log($rootScope.question);
+            if(JSON.stringify($rootScope.question) != "{}" ){
+                var question = $rootScope.question;
+                $rootScope.question = {};
+                console.log(question);
+                var users = fireBaseData.usersRef();
+                var usersArray = $firebase(users).$asArray();
+
+                usersArray.$loaded(function (list) {
+                    var user = list.$getRecord($localstorage.getObject('user').$id);
+                    console.log(parseInt(question.$id));
+                    console.log(typeof user["chatrooms"]);
+                    if (typeof user["chatrooms"] === 'undefined') {
+                        console.log("The user doesn't exist or had a empty chatrooms");
+
+                        users.child($localstorage.getObject('user').$id).set({
+                            first_name: $localstorage.getObject('user').first_name,
+                            last_name: $localstorage.getObject('user').last_name,
+                            picture_url: $localstorage.getObject('user').picture_url,
+                            chatrooms: [parseInt(question.$id)]
+                        }, function(){
+                            $state.transitionTo("tab.account", {}, {
+                                reload: true,
+                                inherit: false,
+                                notify: true
+                            });
+                            $rootScope.shouldGoTo = "chat";
+                        });
+                    }
+                    else {
+                        var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                        chatrooms.$loaded(function (listChatrooms) {
+                            console.log(listChatrooms.length);
+                            if (listChatrooms.length > 0) {
+                                var contains = false;
+                                for (var i = 0; i < listChatrooms.length; i++) {
+                                    console.log($scope.question.$id);
+                                    console.log(listChatrooms[i]);
+                                    if (listChatrooms[i].$value == parseInt(question.$id)) {
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+                                if (contains == false) {
+                                    users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.$id));
+                                }
+
+                                $state.transitionTo("tab.account", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                                $rootScope.shouldGoTo = "chat";
+                            }
+                        })
+                    }
+                });
+            }
+        }
+    })
+.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state, $ionicLoading) {
+
+        function showLoading(){
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
+            });
+        }
+
+        function hideLoading(){
+            $ionicLoading.hide();
+        }
+
+        if(JSON.stringify($localstorage.getObject('user'))!="{}"){
+            $state.transitionTo("tab.account", {}, {
+                reload: true,
+                inherit: false,
+                notify: true
+            });
+        }
+
+        $scope.data = {
+            email: "",
+            password: ""
+        };
+
+        $scope.errormessage="";
+
+        $scope.login = function(email, password) {
+            if (typeof email == 'undefined' || email == "") {
+                $scope.errormessage = "Внесете го вашиот меил.";
+            } else if (typeof password == 'undefined' || password == "") {
+                $scope.errormessage = "Внесете лозинка.";
+            }
+            else {
+                var ref = new Firebase("https://uchizaeksterno.firebaseio.com");
+                showLoading();
+                ref.authWithPassword({
+                    email: email,
+                    password: password
+                }, function (error, authData) {
+                    if (error) {
+                        hideLoading();
+                        switch (error.code) {
+                            case "INVALID_EMAIL":
+                                console.log("The specified user account email is invalid.");
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "E-маил адресата е невалидна.";
+                                });
+                                break;
+                            case "INVALID_PASSWORD":
+                                console.log("The specified user account password is incorrect.");
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "Специфицираната лозинка е невалидна.";
+                                });
+                                break;
+                            case "INVALID_USER":
+                                console.log("The specified user account does not exist.");
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "Оваа корисничка сметка не постои.";
+                                });
+                                break;
+                            default:
+                                $scope.$apply(function () {
+                                    $scope.errormessage = "Настана грешка, ве молиме проверете ги вашите податоци";
+                                });
+                        }
+                    }
+                    else {
+                        console.log("Authenticated successfully with payload:", authData);
+
+                        var users = fireBaseData.usersRef();
+                        var usersArray = $firebase(users).$asArray();
+
+                        usersArray.$loaded(function (list) {
+                            var user = list.$getRecord(authData.auth.uid);
+
+                            $localstorage.setObject('user', {
+                                $id: user["$id"],
+                                first_name: user["first_name"],
+                                last_name: user["last_name"],
+                                picture_url: user["picture_url"]
+                            });
+                            hideLoading();
+                            //$scope.$apply(function () {
+                                $scope.data = {
+                                    email: "",
+                                    password: ""
+                                };
+
+                           // });
+
+                            if ($rootScope.invoker == 'chats') {
+                                $state.transitionTo("tab.account", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                                $rootScope.shouldGoTo = "chat";
+                            }
+                            else if (JSON.stringify($rootScope.question) != "{}") {
+                                addChatroomIfNeeded();
+                            } else {
+                                $state.transitionTo("tab.account", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                                $rootScope.shouldGoTo = "account";
+                            }
+
+
+                        })
+                    }
+                })
+            }
+        }
+
+        function addChatroomIfNeeded(){
+            console.log($rootScope.question);
+            if(JSON.stringify($rootScope.question) != "{}" ){
+                var question = $rootScope.question;
+                $rootScope.question = {};
+                console.log(question);
+                var users = fireBaseData.usersRef();
+                var usersArray = $firebase(users).$asArray();
+
+                usersArray.$loaded(function (list) {
+                    var user = list.$getRecord($localstorage.getObject('user').$id);
+                    console.log(parseInt(question.$id));
+                    console.log(typeof user["chatrooms"]);
+                    if (typeof user["chatrooms"] === 'undefined') {
+                        console.log("The user doesn't exist or had a empty chatrooms");
+
+                        users.child($localstorage.getObject('user').$id).set({
+                            first_name: $localstorage.getObject('user').first_name,
+                            last_name: $localstorage.getObject('user').last_name,
+                            picture_url: $localstorage.getObject('user').picture_url,
+                            chatrooms: [parseInt(question.$id)]
+                        }, function(){
+                            $state.transitionTo("tab.account", {}, {
+                                reload: true,
+                                inherit: false,
+                                notify: true
+                            });
+                            $rootScope.shouldGoTo = "chat";
+                        });
+                    }
+                    else {
+                        var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                        chatrooms.$loaded(function (listChatrooms) {
+                            console.log(listChatrooms.length);
+                            if (listChatrooms.length > 0) {
+                                var contains = false;
+                                for (var i = 0; i < listChatrooms.length; i++) {
+                                    console.log($scope.question.$id);
+                                    console.log(listChatrooms[i]);
+                                    if (listChatrooms[i].$value == parseInt(question.$id)) {
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+                                if (contains == false) {
+                                    users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.$id));
+                                }
+
+                                $state.transitionTo("tab.account", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                                $rootScope.shouldGoTo = "chat";
+                            }
+                        })
+                    }
+                });
+            }
+        }
+})
+.controller('AccountCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state) {
+
+        if(JSON.stringify($localstorage.getObject('user')) === '{}'){
+            $scope.showLoginForm = true;
+        }
+        else{
+            $scope.loggedUser = $localstorage.getObject('user');
+        }
+        if($rootScope.shouldGoTo=="chat"){
+            $state.transitionTo("tab.chats", {}, {
+                reload: true,
+                inherit: false,
+                notify: true
+            });
+            $rootScope.shouldGoTo = "account";
+        }
+
+        $scope.loginWithFacebook = function(){
+            //window.open = cordova.InAppBrowser.open;
+            var ref = fireBaseData.appRef();
+
+            ref.authWithOAuthPopup("facebook", function(error, authData) {
+                if (error) {
+                    console.log("Login Failed!", error);
+                } else {
+                    console.log("Authenticated successfully with payload:", authData);
+
+                    console.log("id: "+authData.auth.uid);
+                    console.log("first_name: "+authData.facebook.cachedUserProfile.first_name);
+                    console.log("last_name: "+authData.facebook.cachedUserProfile.last_name);
+                    console.log("picture_url: "+authData.facebook.cachedUserProfile.picture.data.url);
+
+                    var users = fireBaseData.usersRef();
+                    var usersArray = $firebase(users).$asArray();
+
+                    usersArray.$loaded(function(list){
+                        var user = list.$getRecord(authData.auth.uid);
+                        console.log("pred localstorage");
+                        $localstorage.setObject('user', {
+                            $id: authData.auth.uid,
+                            first_name: authData.facebook.cachedUserProfile.first_name,
+                            last_name: authData.facebook.cachedUserProfile.last_name,
+                            picture_url: authData.facebook.cachedUserProfile.picture.data.url
+                        });
+
+                        if(user==null){
+
+                            users.child(authData.auth.uid).set({
+                                first_name: authData.facebook.cachedUserProfile.first_name,
+                                last_name: authData.facebook.cachedUserProfile.last_name,
+                                picture_url: authData.facebook.cachedUserProfile.picture.data.url
+                            }, function(err){
+                                if($rootScope.invoker == 'chats') {
+                                    $state.transitionTo("tab.chats", {}, {
+                                        reload: true,
+                                        inherit: false,
+                                        notify: true
+                                    });
+                                    $rootScope.invoker="";
+                                }
+                                else
+                                    addChatroomIfNeeded();
+                            });
+
+                        }
+                        else{
+                            if($rootScope.invoker == 'chats') {
+                                $state.transitionTo("tab.chats", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                                $rootScope.invoker="";
+                            }
+                            else
+                                addChatroomIfNeeded();
+                        }
+
+                        $scope.loggedUser = $localstorage.getObject('user');
+
+                        $scope.showLoginForm = false;
+
+
+
+
+                        //delete window.open;
+
+                    });
+
+
+                }
+
+            });
+        }
+
+        function addChatroomIfNeeded(){
+            console.log($rootScope.question);
+            if(JSON.stringify($rootScope.question) != "{}" ){
+                var question = $rootScope.question;
+                $rootScope.question = {};
+                console.log(question);
+                var users = fireBaseData.usersRef();
+                var usersArray = $firebase(users).$asArray();
+
+                usersArray.$loaded(function (list) {
+                    var user = list.$getRecord($localstorage.getObject('user').$id);
+                    console.log(parseInt(question.$id));
+                    console.log(typeof user["chatrooms"]);
+                    if (typeof user["chatrooms"] === 'undefined') {
+                        console.log("The user doesn't exist or had a empty chatrooms");
+
+                        users.child($localstorage.getObject('user').$id).set({
+                            first_name: $localstorage.getObject('user').first_name,
+                            last_name: $localstorage.getObject('user').last_name,
+                            picture_url: $localstorage.getObject('user').picture_url,
+                            chatrooms: [parseInt(question.$id)]
+                        });
+
+                        $state.transitionTo("tab.chats", {}, {
+                            reload: true,
+                            inherit: false,
+                            notify: true
+                        });
+                    }
+                    else {
+                        var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                        chatrooms.$loaded(function (listChatrooms) {
+                            console.log(listChatrooms.length);
+                            if (listChatrooms.length > 0) {
+                                var contains = false;
+                                for (var i = 0; i < listChatrooms.length; i++) {
+                                    console.log($scope.question.$id);
+                                    console.log(listChatrooms[i]);
+                                    if (listChatrooms[i].$value == parseInt(question.$id)) {
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+                                if (contains == false) {
+                                    users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.$id));
+                                }
+
+                                $state.transitionTo("tab.chats", {}, {
+                                    reload: true,
+                                    inherit: false,
+                                    notify: true
+                                });
+                            }
+                        })
+                    }
+                });
+            }
+        }
+
+        $scope.logout = function(){
+            $localstorage.setObject('user', {});
+            if(JSON.stringify($localstorage.getObject('user'))=="{}"){
+                console.log("OK");
+                $scope.showLoginForm = true;
+            }
+        }
 });

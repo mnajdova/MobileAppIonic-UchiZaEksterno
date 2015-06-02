@@ -69,14 +69,14 @@
     </ion-content>
     <ion-footer-bar style="margin:0; padding:0;">
 
-        <div class="button-bar" ng-show="showSubjects" style="...">
-            <button class="button  button-full button-positive"  ng-click="showSelected()" >
+        <div class="button-bar" ng-show="showSubjects" >
+            <button class="button button-block button-positive"  ng-click="showSelected()" ng-show="showSubjects" style="margin-top:0px !important">
                 Зачувај
             </button>
         </div>
 
         <div class="button-bar" ng-show="showSelectedSubjects" style="...">
-            <a class="button  button-full button-positive"  href="#/tab/dash/{{choise}}" >
+            <a class="button button-block button-positive"  href="#/tab/dash/{{choise}}" style="margin-top:0px !important">
                 Прикажи прашања
             </a>
         </div>

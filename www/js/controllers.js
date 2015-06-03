@@ -143,7 +143,7 @@ controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstor
 .controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
         $rootScope.invoker="";//default
         $rootScope.question = {};//default
-        $rootScope.noUserPictreUrl = "https://photos-2.dropbox.com/t/2/AAAOehbC9MCl35ZoFVnc1gAx1DBKrMkW6wQfNWhuEtT7yg/12/116819795/png/32x32/1/_/1/2/Users-User-Male-icon.png/CNOO2jcgASACIAMgBCAFIAYgBygBKAI/RWAwanIYXIPanioHhn4MRyh2QcPUXatXFDudKhoDoCQ?size=1024x768&size_mode=2"
+        $rootScope.noUserPictreUrl = "http://icons.iconarchive.com/icons/icons8/ios7/256/Users-User-Male-2-icon.png"
 
         function showLoading(){
             $ionicLoading.show({
@@ -372,11 +372,33 @@ controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstor
         }
 })
 .controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $localstorage, $firebase, $state, $rootScope, fireBaseData, $ionicPlatform) {
-        $timeout(function(){
-            $ionicScrollDelegate.scrollBottom(false);}
-            ,30);
+        //$timeout(function(){
+        //    $ionicScrollDelegate.scrollBottom(false);}
+        //    ,30);
+            console.log("Pak");
 
+        $scope.myId = $localstorage.getObject('user').$id;
+
+        console.log($location.path());
+        var array = $location.path().split("/");
+        var questionId = array[array.length - 1];
+        console.log(array[array.length - 1]);
+
+        var questionRef = fireBaseData.appRef().child("questions").child(parseInt(questionId));
+        var ref = questionRef.child("chatroom").child("messages");
+        $scope.messages = $firebase(ref).$asArray();
+        console.log($scope.messages);
+        $ionicScrollDelegate.resize();
+        $timeout(function() {
+            $ionicScrollDelegate.scrollBottom(true);
+        }, 300);
+        /*
         if(typeof $scope.messages === 'undefined' || $scope.messages.length==0 ) {
+
+
+
+
+
             $scope.myId = $localstorage.getObject('user').$id;
 
             console.log($location.path());
@@ -424,12 +446,12 @@ controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstor
             })
         }
 
+*/
 
-
-        $timeout(function() {
-            $ionicScrollDelegate.scrollBottom(true);
-        }, 300);
-        $ionicScrollDelegate.resize();
+        //$timeout(function() {
+        //    $ionicScrollDelegate.scrollBottom(true);
+        //}, 300);
+        //$ionicScrollDelegate.resize();
 
         $scope.myId = $localstorage.getObject('user').$id;
 
@@ -451,11 +473,15 @@ controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstor
 
             delete $scope.data.message;
 
-
-            $timeout(function() {
-                $ionicScrollDelegate.scrollBottom(true);
-            }, 300);
+            if (isIOS) $scope.data.keyboardHeight = 0;
             $ionicScrollDelegate.resize();
+
+            $ionicScrollDelegate.scrollBottom(true);
+
+            //$timeout(function() {
+            //    $ionicScrollDelegate.scrollBottom(true);
+            //}, 300);
+            //$ionicScrollDelegate.resize();
 
         };
 
@@ -485,7 +511,7 @@ controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstor
 
     })
 .controller('RegisterCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state, $ionicLoading) {
-
+        console.log("In register ctrl");
         function showLoading(){
             $ionicLoading.show({
                 template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
@@ -868,6 +894,7 @@ controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstor
 
         if(JSON.stringify($localstorage.getObject('user')) === '{}'){
             $scope.showLoginForm = true;
+            console.log("show login form");
         }
         else{
             $scope.loggedUser = $localstorage.getObject('user');

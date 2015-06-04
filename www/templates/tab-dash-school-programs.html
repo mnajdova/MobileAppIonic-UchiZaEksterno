@@ -1,0 +1,15 @@
+<meta charset="utf-8">
+<ion-view title="Прашања">
+    <ion-content>
+        <ion-spinner ng-show="gettingData"></ion-spinner>
+
+        <div>
+            <h4 class="row">Изберете јазик на наставен план</h4>
+            <ion-list>
+                <ion-item ng-repeat="program in schoolPrograms" type="item-text-wrap" ng-click="choosenLanguage(program.$id)">
+                    <label>{{program.language}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+    </ion-content>
+</ion-view>

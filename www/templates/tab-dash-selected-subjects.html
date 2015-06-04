@@ -1,0 +1,24 @@
+<meta charset="utf-8">
+<ion-view title="Прашања">
+    <ion-content>
+        <div>
+            <h4 class="row">Изберете предмет за приказ на прашања</h4>
+            <ion-list>
+                <ion-item ng-repeat="subject in selectedSubjects" type="item-text-wrap" ng-click="showSelectedSubject(subject.$id)">
+                    <ion-radio>{{subject.name}}</ion-radio>
+                </ion-item>
+            </ion-list>
+        </div>
+    </ion-content>
+    <ion-footer-bar style="margin:0; padding:0;">
+
+        <div class="button-bar"  style="...">
+            <a class="button button-block button-positive"  href="#/tab/dash/{{choise}}" style="margin-top:0px !important">
+                Прикажи прашања
+            </a>
+        </div>
+
+    </ion-footer-bar>
+
+</ion-view>
+</ion-view>

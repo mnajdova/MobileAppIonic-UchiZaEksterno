@@ -1,0 +1,14 @@
+<meta charset="utf-8">
+<ion-view title="Прашања">
+    <ion-content>
+        <ion-spinner ng-show="gettingData"></ion-spinner>
+        <div>
+            <h4 class="row">Изберете наставен план</h4>
+            <ion-list>
+                <ion-item ng-repeat="plan in educationPlans" type="item-text-wrap" ng-click="choosenEducationPlan(plan.$id)">
+                    <label>{{plan.name}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+    </ion-content>
+</ion-view>

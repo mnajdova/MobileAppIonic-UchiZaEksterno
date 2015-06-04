@@ -1,0 +1,14 @@
+<meta charset="utf-8">
+<ion-view title="Прашања">
+    <ion-content>
+        <ion-spinner ng-show="gettingData"></ion-spinner>
+        <div>
+            <h4 class="row">Изберете одделение/година</h4>
+            <ion-list>
+                <ion-item ng-repeat="year in yearsOfStudy" type="item-text-wrap" ng-click="choosenYearOfStudy(year.$id)">
+                    <label>{{year.name}}</label>
+                </ion-item>
+            </ion-list>
+        </div>
+    </ion-content>
+</ion-view>

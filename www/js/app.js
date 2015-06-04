@@ -30,16 +30,76 @@ var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controller
 
     // Each tab has its own nav history stack:
 
-    .state('tab.dash', {
-      url: '/dash',
+    .state('tab.schoolPrograms', {
+      url: '/dash/schoolPrograms',
+        cache : false,
       views: {
         'tab-dash': {
-          templateUrl: 'templates/tab-dash.html',
-          controller: 'DashCtrl'
+          templateUrl: 'templates/tab-dash-school-programs.html',
+          controller: 'SchoolProgramsCtrl'
         }
       }
     })
-
+      .state('tab.typesOfEducations', {
+        url: '/dash/typesOfEducations',
+        cache : false,
+        views: {
+          'tab-dash': {
+            templateUrl: 'templates/tab-dash-types-of-educations.html',
+            controller: 'TypesOfEducationsCtrl'
+          }
+        }
+      })
+      .state('tab.yearsOfStudy', {
+        url: '/dash/yearsOfStudy',
+        cache : false,
+        views: {
+          'tab-dash': {
+            templateUrl: 'templates/tab-dash-years-of-study.html',
+            controller: 'YearsOfStudyCtrl'
+          }
+        }
+      })
+      .state('tab.educationPlans', {
+        url: '/dash/educationPlans',
+        cache : false,
+        views: {
+          'tab-dash': {
+            templateUrl: 'templates/tab-dash-education-plans.html',
+            controller: 'EducationPlansCtrl'
+          }
+        }
+      })
+      .state('tab.subjects', {
+        url: '/dash/subjects',
+        cache : false,
+        views: {
+          'tab-dash': {
+            templateUrl: 'templates/tab-dash-subjects.html',
+            controller: 'SubjectsCtrl'
+          }
+        }
+      })
+      .state('tab.selectedSubjects', {
+        url: '/dash/selectedSubjects',
+        cache: false,
+        views: {
+          'tab-dash': {
+            templateUrl: 'templates/tab-dash-selected-subjects.html',
+            controller: 'SelectedSubjectsCtrl'
+          }
+        }
+      })
+      .state('tab.dash', {
+        url: '/dash',
+        cache : false,
+        views: {
+          'tab-chats': {
+            templateUrl: 'templates/tab-dash.html',
+            controller: 'DashCtrl'
+          }
+        }
+      })
     .state('tab.chats', {
       url: '/chats',
       cache : false,
@@ -100,5 +160,5 @@ var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controller
       });
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+  $urlRouterProvider.otherwise('/tab/dash/schoolPrograms');
 });

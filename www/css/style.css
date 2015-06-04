@@ -1,1 +1,19 @@
 /* Empty. Add your own CSS if you like */
+
+.scroll{
+    height:100%;
+}
+
+.spinner svg {
+    width: 28px;
+    height: 28px;
+}
+.spinner{
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -14px;
+    margin-top: -14px;
+}

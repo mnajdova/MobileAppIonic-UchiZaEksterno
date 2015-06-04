@@ -32,6 +32,9 @@ angular.module('starter.services', ['ionic.utils'])
     schoolProgramsRef: function () {
       return $firebase(schoolProgramsRef).$asArray();
     },
+    schoolProgramsReference: function () {
+      return schoolProgramsRef;
+    },
     appRef: function(){
       return appRef;
     }
@@ -42,6 +45,10 @@ angular.module('starter.services', ['ionic.utils'])
     ,
     typesOfEducationRef: function(){
       return $firebase(typesOfEducationRef).$asArray();
+    }
+    ,
+    typesOfEducationReference: function(){
+      return typesOfEducationRef;
     }
     ,
     yearsOfStudyRef: function(){
@@ -55,104 +62,54 @@ angular.module('starter.services', ['ionic.utils'])
     },
     educationPlansRef: function(){
       return $firebase(educationPlansRef).$asArray();
+    },
+    getSchoolPrograms: function(){
+      var scoolPrograms = $firebase(schoolProgramsRef).$asArray();
+      scoolPrograms.$loaded(function(list){
+        return list;
+      });
     }
   }
-});
-
-  /*  .factory('Chats', function($localstorage,$firebase, fireBaseData, $q) {
-      // Might use a resource here that returns a JSON array
-
-
-      console.log("Dojde vo chats");
-      console.log($localstorage.get("language"));
-
-
-      return {
-        all: function() {
-
-          var deferred = $q.defer();
-          var chats = [];
-          var isFinished=false;
-
-          var interval = setInterval(function() {
-            var reference = fireBaseData.refSchoolPrograms();
-            reference.on("value", function(snapshot) {
-
-              var schoolPrograms;
-              var typesOfEducation;
-              var yearsOfStudy;
-              var educationPlans;
-              var subjects;
-
-              schoolPrograms = snapshot.val();
-
-              for(var i=0;i<schoolPrograms.length;i++){
-                if(schoolPrograms[i]["language"] == $localstorage.get("language")){
-                  $localstorage.set("languageIndex", i);
-                  typesOfEducation = schoolPrograms[i]["types-of-education"];
-                }
-              }
-
-              for(var i=0;i<typesOfEducation.length;i++) {
-                if (typesOfEducation[i]["name"] == $localstorage.get("typeOfEducation")) {
-                  $localstorage.set("typeOfEducationIndex", i);
-                  yearsOfStudy = typesOfEducation[i]["years-of-study"];
-                }
-              }
-
-              for(var i=0;i<yearsOfStudy.length;i++) {
-                if (yearsOfStudy[i]["name"] == $localstorage.get('yearOfStudy')) {
-                  $localstorage.set("yearOfStudyIndex", i);
-                  educationPlans = yearsOfStudy[i]["education-plans"];
-                }
-              }
-
-              for(var i=0;i<educationPlans.length;i++) {
-                if (educationPlans[i]["name"] == $localstorage.get('educationPlan')) {
-                  $localstorage.set("educationPlanIndex", i);
-                  subjects = educationPlans[i]["subjects"];
-                }
-              }
-
-              for(var i=0;i<subjects.length;i++){
-                var questions = subjects[i]["questions"];
-                for(var j=0;j<questions.length;j++){
-                  console.log(questions[j]["chatroom"]);
-                  var users = questions[j]["chatroom"]["users"];
-                  for(var k=0;k<users.length;k++){
-                    if(users[k] == $localstorage.getObject('user')["uid"]){
-                      chats.push(questions[j]["chatroom"]);
-                    }
-                  }
-
-                }
-              }
-
-              clearInterval(interval);
-              console.log("Clearing...");
-              deferred.resolve(chats);
-
-            }, function (errorObject) {
-              deferred.reject("The read failed: " + errorObject.code);
-            });
-
-          }, 1000);
-          return deferred.promise;
+})
+    .service('transferList', function(){
+      var typesOfEducations = [];
+      var educationPlans = [];
+      var yearsOfStudy = [];
+      var subjects = [];
+      var selectedSubjects = [];
+      return{
+        getTypesOfEducations: function(){
+          return typesOfEducations;
         },
-        remove: function(chat) {
-          chats.splice(chats.indexOf(chat), 1);
+        setTypesOfEducations: function(l){
+          typesOfEducations = l;
         },
-        get: function(chatId) {
-          for (var i = 0; i < chats.length; i++) {
-            if (chats[i].id === parseInt(chatId)) {
-              return chats[i];
-            }
-          }
-          return null;
+        getEducationPlans: function(){
+          return educationPlans;
+        },
+        setEducationPlans: function(l){
+          educationPlans = l;
+        },
+        getYearsOfStudy: function(){
+          return yearsOfStudy;
+        },
+        setYearsOfStudy: function(l){
+          yearsOfStudy = l;
+        },
+        getSubjects: function(){
+          return subjects;
+        },
+        setSubjects: function(l){
+          subjects = l;
+        },
+        getSelectedSubjects: function(){
+          return selectedSubjects;
+        },
+        setSelectedSubjects: function(l){
+          selectedSubjects = l;
         }
-      };
-    });*/
-
+      }
+    });
 angular.module('ionic.utils', [])
 .factory('$localstorage', ['$window', function($window) {
   return {

@@ -6,15 +6,15 @@
 <meta charset="utf-8">
 <ion-tabs class="tabs-icon-top">
   <!-- My Tab -->
-  <ion-tab title="Прашања" icon="icon ion-ios-book" href="#/tab/dash">
+  <ion-tab title="Прашања" icon="icon ion-ios-book" href="#/tab/dash" >
     <ion-nav-view name="tab-dash"></ion-nav-view>
   </ion-tab>
   <!-- Friends Tab -->
-  <ion-tab title="Разговори" icon="icon ion-log-out" href="#/tab/chats">
+  <ion-tab title="Разговори" icon="icon ion-ios-chatboxes" href="#/tab/chats" ng-click="onTabSelected()" ng-controller="ChatsTabLocalCtrl">
     <ion-nav-view name="tab-chats"></ion-nav-view>
   </ion-tab>
   <!-- Account -->
-  <ion-tab title="Прилагодувања" icon="icon ion-gear-b" href="#/tab/account">
+  <ion-tab title="Прилагодувања" icon="icon ion-gear-b" href="#/tab/account" ion-on="color:#33cd5f;">
     <ion-nav-view name="tab-account"></ion-nav-view>
   </ion-tab>
 </ion-tabs>

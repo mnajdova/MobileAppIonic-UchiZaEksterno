@@ -58,7 +58,8 @@ angular.module('starter.services', ['ionic.utils'])
       return $firebase(subjectsRef).$asArray();
     },
     questionsRef: function(){
-      return $firebase(questionsRef).$asArray();
+      return questionsRef;
+      //return $firebase(questionsRef).$asArray();
     },
     educationPlansRef: function(){
       return $firebase(educationPlansRef).$asArray();
@@ -109,7 +110,31 @@ angular.module('starter.services', ['ionic.utils'])
           selectedSubjects = l;
         }
       }
-    });
+    })
+    .service('fileUpload', ['$http', function ($http) {
+      this.uploadFileToUrl = function(file, uploadUrl){
+        var fd = new FormData();
+        fd.append('file', file);
+        $http.post(uploadUrl, fd, {
+          transformRequest: angular.identity,
+          headers: {'Content-Type': undefined}
+        })
+            .success(function(msg){
+              console.log("Message from service");
+              console.log(msg);
+              alert(msg);
+              console.log("End message from service");
+            })
+            .error(function(err){
+              console.log(err);
+              alert(err);
+            });
+      }
+    }]);
+
+
+
+
 angular.module('ionic.utils', [])
 .factory('$localstorage', ['$window', function($window) {
   return {

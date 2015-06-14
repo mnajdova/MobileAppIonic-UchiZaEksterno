@@ -1,14 +1,5 @@
 controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state, $ionicLoading) {
 
-    function showLoading(){
-        $ionicLoading.show({
-            template: '<ion-spinner></ion-spinner><style>.loading{background-color: inherit !important; } </style>'
-        });
-    }
-
-    function hideLoading(){
-        $ionicLoading.hide();
-    }
 
     if(JSON.stringify($localstorage.getObject('user'))!="{}"){
         $state.transitionTo("tab.account", {}, {
@@ -33,13 +24,13 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
         }
         else {
             var ref = new Firebase("https://uchizaeksterno.firebaseio.com");
-            showLoading();
+            $scope.gettingData = true;
             ref.authWithPassword({
                 email: email,
                 password: password
             }, function (error, authData) {
                 if (error) {
-                    hideLoading();
+                    $scope.gettingData = false;
                     switch (error.code) {
                         case "INVALID_EMAIL":
                             console.log("The specified user account email is invalid.");
@@ -80,14 +71,13 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                             last_name: user["last_name"],
                             picture_url: user["picture_url"]
                         });
-                        hideLoading();
-                        //$scope.$apply(function () {
+                        $scope.gettingData = false;
+
                         $scope.data = {
                             email: "",
                             password: ""
                         };
 
-                        // });
 
                         if ($rootScope.invoker == 'chats') {
                             $state.transitionTo("tab.account", {}, {
@@ -126,7 +116,7 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
 
             usersArray.$loaded(function (list) {
                 var user = list.$getRecord($localstorage.getObject('user').$id);
-                console.log(parseInt(question.$id));
+                console.log(parseInt(question.id));
                 console.log(typeof user["chatrooms"]);
                 if (typeof user["chatrooms"] === 'undefined') {
                     console.log("The user doesn't exist or had a empty chatrooms");
@@ -135,7 +125,7 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                         first_name: $localstorage.getObject('user').first_name,
                         last_name: $localstorage.getObject('user').last_name,
                         picture_url: $localstorage.getObject('user').picture_url,
-                        chatrooms: [parseInt(question.$id)]
+                        chatrooms: [parseInt(question.id)]
                     }, function(){
                         $state.transitionTo("tab.account", {}, {
                             reload: true,
@@ -152,15 +142,15 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                         if (listChatrooms.length > 0) {
                             var contains = false;
                             for (var i = 0; i < listChatrooms.length; i++) {
-                                console.log($scope.question.$id);
+                                console.log($scope.question.id);
                                 console.log(listChatrooms[i]);
-                                if (listChatrooms[i].$value == parseInt(question.$id)) {
+                                if (listChatrooms[i].$value == parseInt(question.id)) {
                                     contains = true;
                                     break;
                                 }
                             }
                             if (contains == false) {
-                                users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.$id));
+                                users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.id));
                             }
 
                             $state.transitionTo("tab.account", {}, {

@@ -17,3 +17,11 @@
     margin-left: -14px;
     margin-top: -14px;
 }
+
+.overflow-arrow{
+    font-size: 50px !important;
+    margin:10px;
+    top:42%;
+    position:relative;
+    opacity:0.6;
+}

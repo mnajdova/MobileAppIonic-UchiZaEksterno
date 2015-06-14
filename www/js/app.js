@@ -1,6 +1,12 @@
-var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'starter.services', 'firebase'])
+var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'starter.services', 'firebase', 'ngCordova'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $rootScope) {
+
+      $rootScope.invoker="";
+      $rootScope.question = {};
+      $rootScope.chatPage = "tab.chat";
+      $rootScope.noUserPictreUrl = "http://icons.iconarchive.com/icons/icons8/ios7/256/Users-User-Male-2-icon.png";
+
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -13,7 +19,9 @@ var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controller
     }
   });
 })
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+
+      $ionicConfigProvider.tabs.position('bottom');
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
@@ -90,16 +98,16 @@ var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controller
           }
         }
       })
-      .state('tab.dash', {
-        url: '/dash',
-        cache : false,
-        views: {
-          'tab-chats': {
-            templateUrl: 'templates/tab-dash.html',
-            controller: 'DashCtrl'
-          }
-        }
-      })
+      //.state('tab.dash', {
+      //  url: '/dash',
+      //  cache : false,
+      //  views: {
+      //    'tab-chats': {
+      //      templateUrl: 'templates/tab-dash.html',
+      //      controller: 'DashCtrl'
+      //    }
+      //  }
+      //})
     .state('tab.chats', {
       url: '/chats',
       cache : false,
@@ -161,4 +169,19 @@ var app = angular.module('starter', ['ionic', 'ionic.utils', 'starter.controller
 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/tab/dash/schoolPrograms');
-});
+})
+.directive('fileModel', ['$parse', function ($parse) {
+      return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+          var model = $parse(attrs.fileModel);
+          var modelSetter = model.assign;
+
+          element.bind('change', function(){
+            scope.$apply(function(){
+              modelSetter(scope, element[0].files[0]);
+            });
+          });
+        }
+      };
+    }]);

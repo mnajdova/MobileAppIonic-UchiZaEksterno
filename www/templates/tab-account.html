@@ -1,40 +1,66 @@
 <ion-view title="Прилагодувања">
-  <ion-content>
-    <div class="list" ng-show="showLoginForm">
-     <!-- <label class="item item-input">
-        <span class="input-label">Email</span>
-        <input type="text" ng-model="em"/>
-      </label>
-      <label class="item item-input">
-        <span class="input-label">Password</span>
-        <input type="password" ng-model="pwd"/>
-      </label>-->
-      <button class="button button-block button-positive" ng-click="loginWithFacebook()">
-        Логирај се со Facebook
-      </button>
-      <a class="button button-block button-assertive" href="#/tab/account/login">
-        Логирај се со е-меил и лозинка
-      </a>
-      <a class="button button-block button-dark" href="#/tab/account/register">
-        Регистрирај се
-      </a>
-    </div>
-    <div class="card" ng-hide="showLoginForm">
-      <div class="item item-text-wrap">
-        You are logged in as {{loggedUser.first_name}} {{loggedUser.last_name}}
-      </div>
-    </div>
-    <button class="button button-stable" style="margin-left:10px" ng-click="logout()" ng-hide="showLoginForm">
-      Logout
-    </button>
-      <button class="button button-stable" style="margin:10px; margin-top:10px;margin-botton:10px;" ng-click="addNewProfile()">
-          Додади профил
-      </button>
-      <ion-list>
-          <ion-item ng-repeat="studentProfile in studentsProfiles" type="item-text-wrap" ng-click="choosenStudentProfile(studentProfile.name)">
-              <label>{{studentProfile.name}}</label>
-          </ion-item>
-      </ion-list>
+    <ion-content>
+        <ion-spinner ng-show="data.gettingData" icon="ios"></ion-spinner>
+        <div class="list" ng-show="showLoginForm">
+            <button class="button button-block icon-left ion-social-facebook" style="background: #3b5998; color:white;" ng-click="loginWithFacebook()">
+                Логирај се со Facebook
+            </button>
+            <a class="button button-block icon-left ion-log-in button-calm" href="#/tab/account/login">
+                Логирај се со е-меил и лозинка
+            </a>
+            <a class="button button-block icon-left ion-person-add button-calm" href="#/tab/account/register">
+                Регистрирај се
+            </a>
+        </div>
+        <div class="card" ng-hide="showLoginForm">
+            <div class="row">
+            <div class="list col col-33">
+                <div id='logo' style='background:url({{loggedUser["picture_url"]}}) center top; width:100%; height:140px; background-size: cover;'></div>
+                <!--<img ng-src="{{loggedUser['picture_url']}}"style="max-height: 120px; float:left;"/>-->
 
-  </ion-content>
+            </div>
+            <div class="list col col-66">
+                <label style="margin-left:5px;">Прикачи фотографија</label><br/>
+                <div class="row" >
+                    <div class="col" ng-click="takePic(0)">
+                        <i class="icon ion-camera"></i><label>  Камера</label>
+                    </div>
+                <!--<button class="button button-icon icon ion-camera col" ng-click="takePic(0)">  Камера</button>-->
+                <!--<button class="button button-icon icon ion-link col" ng-click="takePic(1)">  Галерија</button>-->
+                    <div class="col" ng-click="takePic(1)">
+                        <i class="icon ion-link"></i><label>  Галерија</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col">Име</label>
+                    <label class="col">{{loggedUser.first_name}}</label>
+                </div>
+                <div class="row">
+                    <label class="col">Презиме</label>
+                    <label class="col">{{loggedUser.last_name}}</label>
+                </div>
+            </div>
+            </div>
+            <div class="row" style="margin-top:-30px !important;">
+                <button class="button button-calm button-block" ng-click="logout()" ng-hide="showLoginForm">
+                    Одјава
+                </button>
+            </div>
+        </div>
+
+        <br/>
+        <div  style="margin:10px;margin-bottom:50px;">
+        <label style=" font-size: 15px; float:left;">Вашите студентски профили</label>
+        <button class="icon button-icon ion-plus-round" style="float:right;"
+                ng-click="addNewProfile()">
+        </button>
+        </div>
+        <ion-list>
+            <ion-item style="display : flex; align-items : center;" ng-repeat="studentProfile in studentsProfiles" type="item-text-wrap">
+                <i style="width:10%; margin-left:-10px;" class="button-icon icon ion-ios-trash" ng-click="removeStudentProfile(studentProfile.name)"></i>
+                <label style="width:90%" ng-click="choosenStudentProfile(studentProfile.name)">{{studentProfile.name}}</label>
+            </ion-item>
+        </ion-list>
+
+    </ion-content>
 </ion-view>

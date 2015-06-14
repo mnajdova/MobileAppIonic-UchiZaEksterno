@@ -1,7 +1,4 @@
 controllers.controller('SchoolProgramsCtrl', function($scope, fireBaseData, $firebase, transferList, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
-    $rootScope.invoker="";
-    $rootScope.question = {};
-    $rootScope.noUserPictreUrl = "http://icons.iconarchive.com/icons/icons8/ios7/256/Users-User-Male-2-icon.png";
     $scope.gettingData = true;
 
     var scoolPrograms = fireBaseData.schoolProgramsRef();

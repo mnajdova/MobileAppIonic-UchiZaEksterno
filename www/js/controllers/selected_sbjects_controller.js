@@ -32,4 +32,8 @@ controllers.controller('SelectedSubjectsCtrl', function($scope, fireBaseData, $f
         $scope.choise = id;
         $localstorage.set('choiseId', id);
     };
+
+    $scope.openQuestions = function(choise){
+        $state.go('tab.questions', {'subjectId' : choise});
+    }
 });

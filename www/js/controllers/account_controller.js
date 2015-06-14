@@ -1,4 +1,112 @@
-controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state) {
+controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, $timeout, $localstorage, $rootScope, $state, fileUpload, $cordovaCamera, $ionicHistory) {
+    $scope.data={gettingData:false};
+
+    $scope.removeStudentProfile = function(name){
+        console.log($scope.studentsProfiles);
+        var updatedStudentProfiles = [];
+        for(var i=0;i<$scope.studentsProfiles.length;i++){
+            if($scope.studentsProfiles[i]['name'] != name){
+                updatedStudentProfiles.push($scope.studentsProfiles[i]);
+            }
+        }
+        $timeout(function(){
+            $scope.studentsProfiles = updatedStudentProfiles;
+            $localstorage.setObject('studentsProfiles', $scope.studentsProfiles);
+        });
+    };
+
+
+    $scope.send = function(){
+        var imageURI = $scope.picData;
+        var options = new FileUploadOptions();
+        options.fileKey = "file";
+        options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+        options.mimeType = "image/jpeg";
+        var params = new Object();
+        options.params = params;
+        options.chunkedMode = false;
+        var ft = new FileTransfer();
+        ft.upload(imageURI, "http://zor-komerc.mk/uchizaeksterno/upload.php", win, fail,
+            options);
+    }
+
+    function win(r) {
+        var pictureUrl = r.response;
+        $scope.loggedUser = $localstorage.getObject('user');
+        $scope.loggedUser['picture_url'] = pictureUrl;
+        $scope.data.gettingData = false;
+        $localstorage.setObject('user', $scope.loggedUser);
+        var pictureRef = fireBaseData.usersRef().child($scope.loggedUser.$id).child('picture_url');
+        pictureRef.set(pictureUrl, function(){
+            $scope.data.gettingData = false;
+            $timeout(function(){
+                $scope.loggedUser['picture_url'] = pictureUrl;
+                var alertPopup = $ionicPopup.alert({
+                    title: 'Успешна промена',
+                    template: 'Вашата фотографија беше успешно прикачена',
+                    buttons: [
+                        {text: 'OK',
+                            type: 'button-calm'
+                        }
+                    ]
+                });
+            })
+        });
+
+    }
+
+    function fail(error) {
+        $scope.data.gettingData = false;
+        var alertPopup = $ionicPopup.alert({
+            title: 'Настана грешка',
+            template: 'Се појави грешка при прикачувањето на вашата фотографија. Ве молиме обидете се повторно.',
+            buttons: [
+                {text: 'OK',
+                    type: 'button-calm'
+                }
+            ]
+        });
+        console.log("upload error source " + error.source);
+        console.log("upload error target " + error.target);
+    }
+
+    $scope.takePic = function(type) {
+        var sourceType;
+        if(type == 0){
+            sourceType = Camera.PictureSourceType.CAMERA;
+        }
+        else
+            sourceType = Camera.PictureSourceType.PHOTOLIBRARY;
+        var options = {
+            quality : 100,
+            destinationType: Camera.DestinationType.FILE_URI,
+            sourceType : sourceType,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 500,
+            targetHeight: 500,
+            saveToPhotoAlbum: false
+        };
+        navigator.camera.getPicture(onSuccess,onFail,options);
+    }
+    var onSuccess = function(FILE_URI) {
+        console.log(FILE_URI);
+        $scope.picData = FILE_URI;
+        $scope.data.gettingData = true;
+        $scope.send();
+    };
+
+    var onFail = function(e) {
+        var alertPopup = $ionicPopup.alert({
+            title: 'Настана грешка',
+            template: 'Фотоградијата не беше успешно прикачена. Ве молиме обидете се повторно.',
+            buttons: [
+                {text: 'OK',
+                    type: 'button-calm'
+                }
+            ]
+        });
+        console.log("On fail " + e);
+    };
 
     $scope.studentsProfiles = $localstorage.getObject('studentsProfiles');
     console.log($scope.studentsProfiles);
@@ -10,11 +118,11 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
                 $state.transitionTo("tab.selectedSubjects", {}, {reload: true, inherit: false, notify: true});
             }
         }
-    }
+    };
 
     $scope.addNewProfile = function(){
         $state.transitionTo("tab.schoolPrograms", {}, {reload: true, inherit: false, notify: true});
-    }
+    };
 
     if(JSON.stringify($localstorage.getObject('user')) === '{}'){
         $scope.showLoginForm = true;
@@ -32,7 +140,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
     }
 
     $scope.loginWithFacebook = function(){
-        //window.open = cordova.InAppBrowser.open;
+        window.open = cordova.InAppBrowser.open;
         var ref = fireBaseData.appRef();
 
         ref.authWithOAuthPopup("facebook", function(error, authData) {
@@ -80,6 +188,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
 
                     }
                     else{
+                        console.log("================Rootscope question============="+JSON.stringify($rootScope.question));
                         if($rootScope.invoker == 'chats') {
                             $state.transitionTo("tab.chats", {}, {
                                 reload: true,
@@ -99,7 +208,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
 
 
 
-                    //delete window.open;
+                    delete window.open;
 
                 });
 
@@ -107,7 +216,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
             }
 
         });
-    }
+    };
 
     function addChatroomIfNeeded(){
         console.log($rootScope.question);
@@ -120,7 +229,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
 
             usersArray.$loaded(function (list) {
                 var user = list.$getRecord($localstorage.getObject('user').$id);
-                console.log(parseInt(question.$id));
+                console.log(parseInt(question.id));
                 console.log(typeof user["chatrooms"]);
                 if (typeof user["chatrooms"] === 'undefined') {
                     console.log("The user doesn't exist or had a empty chatrooms");
@@ -129,7 +238,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
                         first_name: $localstorage.getObject('user').first_name,
                         last_name: $localstorage.getObject('user').last_name,
                         picture_url: $localstorage.getObject('user').picture_url,
-                        chatrooms: [parseInt(question.$id)]
+                        chatrooms: [parseInt(question.id)]
                     });
 
                     $state.transitionTo("tab.chats", {}, {
@@ -145,15 +254,15 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
                         if (listChatrooms.length > 0) {
                             var contains = false;
                             for (var i = 0; i < listChatrooms.length; i++) {
-                                console.log($scope.question.$id);
+                                console.log($scope.question.id);
                                 console.log(listChatrooms[i]);
-                                if (listChatrooms[i].$value == parseInt(question.$id)) {
+                                if (listChatrooms[i].$value == parseInt(question.id)) {
                                     contains = true;
                                     break;
                                 }
                             }
                             if (contains == false) {
-                                users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.$id));
+                                users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.id));
                             }
 
                             $state.transitionTo("tab.chats", {}, {
@@ -174,5 +283,6 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
             console.log("OK");
             $scope.showLoginForm = true;
         }
+        $rootScope.chatPage = "tab.chat";
     }
 });

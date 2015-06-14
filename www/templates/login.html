@@ -1,11 +1,12 @@
 <meta charset="UTF-8">
 <ion-view title="Прилагодувања">
     <ion-content>
+        <ion-spinner ng-show="gettingData" icon="ios"></ion-spinner>
         <div class="list">
             <label class="item item-input"> <span class="input-label">Email</span> <input type="text" ng-model="data.email"/> </label>
             <label class="item item-input"> <span class="input-label">Password</span> <input type="password" ng-model="data.password"/></label>
         </div>
         <span class="label" style="color:red; margin-left:15px; margin-top:-10px">{{errormessage}}&nbsp;</span>
-        <button class="button button-block button-positive" ng-click="login(data.email, data.password)">Најава</button>
+        <button class="button button-block button-calm" ng-click="login(data.email, data.password)">Најава</button>
     </ion-content>
 </ion-view>

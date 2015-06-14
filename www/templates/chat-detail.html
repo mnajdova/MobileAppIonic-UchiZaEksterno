@@ -12,7 +12,7 @@
 <ion-content class="content-stable"
              on-swipe-left="hideTime = false"
              on-swipe-right="hideTime = true">
-
+  <ion-spinner ng-show="gettingData" icon="ios"></ion-spinner>
   <div ng-repeat="message in messages"
        ng-class="{other: message['user_id'] != myId}"
        class="messages" ng-show="message['user_id'].length>0" >
@@ -21,7 +21,10 @@
     <img style="width:50px; height:50px;" ng-show="message['user_id'] == myId" ng-src="{{message['user_picture']}}"/>
 
     <div class="message" ng-class="{'slide-right': hideTime, '': !hideTime}">
-      <span class="spanMessage">{{ message.text }}</span>
+      <span class="spanMessage">{{ message.text }}<br ng-show="message['image'] != null && message['text'] != null" />
+        <img ng-show="message['image'] != null" ng-src="data:image/jpeg;base64,{{message.image}}" ng-click="showImage(message.image)" width="120px" />
+      </span>
+
     </div>
 
     <div class="time" ng-class="{'slide-right': hideTime, '': !hideTime}"><!--{{message.time}}--></div>
@@ -34,6 +37,7 @@
 </ion-content>
 
 <ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
+  <button class="button button-icon icon ion-camera" ng-click="showPopup()"></button>
   <label class="item-input-wrapper">
     <input type="text" placeholder="Type your message" on-return="sendMessage(); closeKeyboard()" ng-model="data.message" on-focus="inputUp()" on-blur="inputDown()" />
   </label>

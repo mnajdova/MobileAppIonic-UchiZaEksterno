@@ -1,4 +1,4 @@
-controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, $timeout, $localstorage, $rootScope, $state, fileUpload, $cordovaCamera, $ionicHistory) {
+controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebaseArray, $timeout, $localstorage, $rootScope, $state, fileUpload, $cordovaCamera, $ionicHistory) {
     $scope.data={gettingData:false};
 
     $scope.removeStudentProfile = function(name){
@@ -28,7 +28,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
         var ft = new FileTransfer();
         ft.upload(imageURI, "http://zor-komerc.mk/uchizaeksterno/upload.php", win, fail,
             options);
-    }
+    };
 
     function win(r) {
         var pictureUrl = r.response;
@@ -155,7 +155,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
                 console.log("picture_url: "+authData.facebook.cachedUserProfile.picture.data.url);
 
                 var users = fireBaseData.usersRef();
-                var usersArray = $firebase(users).$asArray();
+                var usersArray = $firebaseArray(users);
 
                 usersArray.$loaded(function(list){
                     var user = list.$getRecord(authData.auth.uid);
@@ -225,7 +225,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
             $rootScope.question = {};
             console.log(question);
             var users = fireBaseData.usersRef();
-            var usersArray = $firebase(users).$asArray();
+            var usersArray = $firebaseArray(users);
 
             usersArray.$loaded(function (list) {
                 var user = list.$getRecord($localstorage.getObject('user').$id);
@@ -248,7 +248,7 @@ controllers.controller('AccountCtrl', function($scope, fireBaseData, $firebase, 
                     });
                 }
                 else {
-                    var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                    var chatrooms =$firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
                     chatrooms.$loaded(function (listChatrooms) {
                         console.log(listChatrooms.length);
                         if (listChatrooms.length > 0) {

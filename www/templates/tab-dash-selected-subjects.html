@@ -2,6 +2,7 @@
 <ion-view title="Прашања">
     <ion-content>
         <ion-spinner ng-show="data.gettingData" icon="ios"></ion-spinner>
+        <i class="icon ion-refresh refreshIcon" ng-click="refresh()" ng-show="refreshShow"></i>
         <div>
             <h4 class="row">Изберете предмет за приказ на прашања</h4>
             <ion-list>
@@ -11,10 +12,6 @@
             </ion-list>
         </div>
     </ion-content>
-        <!--<a class="button button-block button-positive" href="#/tab/dash/{{choise}}" style="width:100%; position: absolute;-->
-                <!--bottom: 40px;">-->
-                <!--Прикажи прашања-->
-            <!--</a>-->
     <ion-footer-bar class="bar bar-calm" href="#/tab/dash/{{choise}}" ng-click="openQuestions(choise)" >
        <h5 style="color:white; margin:auto; width:200px; text-align: center;">Прикажи прашања</h5>
     </ion-footer-bar>

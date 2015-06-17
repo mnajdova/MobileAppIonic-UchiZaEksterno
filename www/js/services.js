@@ -2,7 +2,7 @@ angular.module('starter.services', ['ionic.utils'])
 /**
  * A simple example service that returns some data.
  */
-.factory('fireBaseData', function($firebase) {
+.factory('fireBaseData', function($firebaseArray) {
       var appRef = new Firebase("https://uchizaeksterno.firebaseio.com/");
       var schoolProgramsRef = new Firebase("https://uchizaeksterno.firebaseio.com/school-programs");
       var typesOfEducationRef = new Firebase("https://uchizaeksterno.firebaseio.com/types-of-education");
@@ -12,7 +12,7 @@ angular.module('starter.services', ['ionic.utils'])
       var questionsRef = new Firebase("https://uchizaeksterno.firebaseio.com/questions");
       var educationPlansRef = new Firebase("https://uchizaeksterno.firebaseio.com/education-plans");
 
-  var ref = new Firebase("https://blistering-torch-6297.firebaseio.com/"),
+      var ref = new Firebase("https://blistering-torch-6297.firebaseio.com/"),
       refMaApp = new Firebase("https://blistering-torch-6297.firebaseio.com/ma-app"),
       refSchoolPrograms = new Firebase("https://blistering-torch-6297.firebaseio.com/ma-app/school-programs");
 
@@ -30,7 +30,8 @@ angular.module('starter.services', ['ionic.utils'])
       return refSchoolPrograms;
     },
     schoolProgramsRef: function () {
-      return $firebase(schoolProgramsRef).$asArray();
+      //return $firebase(schoolProgramsRef).$asArray();
+      return $firebaseArray(schoolProgramsRef);
     },
     schoolProgramsReference: function () {
       return schoolProgramsRef;
@@ -44,7 +45,7 @@ angular.module('starter.services', ['ionic.utils'])
     }
     ,
     typesOfEducationRef: function(){
-      return $firebase(typesOfEducationRef).$asArray();
+      return $firebaseArray(typesOfEducationRef);
     }
     ,
     typesOfEducationReference: function(){
@@ -52,20 +53,20 @@ angular.module('starter.services', ['ionic.utils'])
     }
     ,
     yearsOfStudyRef: function(){
-      return $firebase(yearsOfStudyRef).$asArray();
+      return $firebaseArray(yearsOfStudyRef);
     },
     subjectsRef:function(){
-      return $firebase(subjectsRef).$asArray();
+      return $firebaseArray(subjectsRef);
     },
     questionsRef: function(){
       return questionsRef;
       //return $firebase(questionsRef).$asArray();
     },
     educationPlansRef: function(){
-      return $firebase(educationPlansRef).$asArray();
+      return $firebaseArray(educationPlansRef);
     },
     getSchoolPrograms: function(){
-      var scoolPrograms = $firebase(schoolProgramsRef).$asArray();
+      var scoolPrograms = $firebaseArray(schoolProgramsRef);
       scoolPrograms.$loaded(function(list){
         return list;
       });

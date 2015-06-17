@@ -1,4 +1,4 @@
-controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $ionicSlideBoxDelegate, $ionicHistory, $location, $rootScope, $timeout) {
+controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebaseArray, $localstorage, $ionicPopup, $state, $ionicLoading, $ionicSlideBoxDelegate, $ionicHistory, $location, $rootScope, $timeout) {
     var array = $location.path().split("/");
     $scope.choise = array[array.length - 1];
     console.log(array[array.length - 1]);
@@ -24,7 +24,9 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
             $scope.questions[listQuestionsIds[i]] = Object();
             var text = fireBaseData.questionsRef().child(listQuestionsIds[i]).child("text");
             text.on("value", function(v){
-                var index = v["Cc"]["path"]["u"][1];
+                console.log(v["V"]["path"]["n"][1]);
+                console.log(v);
+                var index = v["V"]["path"]["n"][1];
                 done++;
                 $scope.questions[parseInt(index)]["text"] = v.val();
                 if(done>=listQuestionsIds.length*2){
@@ -38,7 +40,7 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
             });
             var picture = fireBaseData.questionsRef().child(listQuestionsIds[i]).child("picture-url");
             picture.on("value", function(v){
-                var index = v["Cc"]["path"]["u"][1];
+                var index = v["V"]["path"]["n"][1];
                 done++;
                 $scope.questions[parseInt(index)]["picture-url"] = v.val();
                 if(done>=listQuestionsIds.length*2){
@@ -73,7 +75,7 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
         if (JSON.stringify($localstorage.getObject('user')) != "{}") {
             console.log("Userot e veke logiran");
             var users = fireBaseData.usersRef();
-            var usersArray = $firebase(users).$asArray();
+            var usersArray = $firebaseArray(users);
 
             usersArray.$loaded(function (list) {
                 var user = list.$getRecord($localstorage.getObject('user').$id);
@@ -99,7 +101,7 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                 }
                 else {
                     console.log("The user existed");
-                    var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                    var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
                     chatrooms.$loaded(function (listChatrooms) {
                         console.log("Vo listChatrooms");
                         console.log(listChatrooms.length);

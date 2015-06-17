@@ -1,16 +1,78 @@
-controllers.controller('YearsOfStudyCtrl', function($scope, fireBaseData, transferList, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+controllers.controller('YearsOfStudyCtrl', function($scope, $timeout, fireBaseData, transferList, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
 
     $scope.gettingData = true;
+    $scope.refreshShow = false;
 
-    var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
-    $scope.yearsOfStudy= Array();
-    var yearsOfStudy = fireBaseData.yearsOfStudyRef();
-    yearsOfStudy.$loaded(function(list){
-        for(var i=0; i<listYearsOfStudyIds.length;i++){
-            $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
+    //For mobile
+    $timeout(function () {
+        $scope.getData();
+    }, 1500);
+
+
+    $scope.getData = function () {
+        if (window.Connection) {
+            if (navigator.connection.type == Connection.NONE) {
+                $ionicPopup.confirm({
+                    title: "Интернет конекција",
+                    content: "Дисконектирани сте од интернет. Ве молиме конектирајте се за да ги превземете податоците.",
+                    buttons: [
+                        {text: 'Откажи'},
+                        {
+                            text: 'OK',
+                            type: 'button-calm'
+                        }
+                    ]
+                }).then(function (result) {
+                    $scope.gettingData = false;
+                    $scope.refreshShow = true;
+                });
+            }
+            else {
+                var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
+                $scope.yearsOfStudy= Array();
+                var yearsOfStudy = fireBaseData.yearsOfStudyRef();
+                yearsOfStudy.$loaded(function(list){
+                    for(var i=0; i<listYearsOfStudyIds.length;i++){
+                        $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
+                    }
+                    $scope.refreshShow = false;
+                    $scope.gettingData = false;
+                });
+            }
+        } else {
+            $ionicPopup.confirm({
+                title: "Интернет конекција",
+                content: "Дисконектирани сте од интернет. Ве молиме конектирајте се за да ги превземете податоците.",
+                buttons: [
+                    {text: 'Откажи'},
+                    {
+                        text: 'OK',
+                        type: 'button-calm'
+                    }
+                ]
+            }).then(function (result) {
+                $scope.gettingData = false;
+                $scope.refreshShow = true;
+            });
         }
-        $scope.gettingData = false;
-    });
+    };
+
+    $scope.refresh = function () {
+        $scope.refreshShow = false;
+        $scope.gettingData = true;
+        $scope.getData();
+    };
+
+    //For computer
+    //var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
+    //$scope.yearsOfStudy= Array();
+    //var yearsOfStudy = fireBaseData.yearsOfStudyRef();
+    //yearsOfStudy.$loaded(function(list){
+    //    for(var i=0; i<listYearsOfStudyIds.length;i++){
+    //        $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
+    //    }
+    //    $scope.gettingData = false;
+    //});
 
     $scope.choosenYearOfStudy = function(id){
         $localstorage.set('yearOfStudyId', id);

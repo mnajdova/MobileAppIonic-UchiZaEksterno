@@ -1,17 +1,79 @@
 controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase, $timeout, transferList, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
 
     $scope.gettingData = true;
+    $scope.refreshShow = false;
     $scope.selected = [];
 
-    var listSubjectsIds = $localstorage.getObject('subjectsIds');
-    $scope.subjects = Array();
-    var subjects = fireBaseData.subjectsRef();
-    subjects.$loaded(function (list) {
-        for (var i = 0; i < listSubjectsIds.length; i++) {
-            $scope.subjects.push(list[listSubjectsIds[i]]);
+    //For mobile
+    $timeout(function () {
+        $scope.getData();
+    }, 1500);
+
+
+    $scope.getData = function () {
+        if (window.Connection) {
+            if (navigator.connection.type == Connection.NONE) {
+                $ionicPopup.confirm({
+                    title: "Интернет конекција",
+                    content: "Дисконектирани сте од интернет. Ве молиме конектирајте се за да ги превземете податоците.",
+                    buttons: [
+                        {text: 'Откажи'},
+                        {
+                            text: 'OK',
+                            type: 'button-calm'
+                        }
+                    ]
+                }).then(function (result) {
+                    $scope.gettingData = false;
+                    $scope.refreshShow = true;
+                });
+            }
+            else {
+                var listSubjectsIds = $localstorage.getObject('subjectsIds');
+                $scope.subjects = Array();
+                var subjects = fireBaseData.subjectsRef();
+                subjects.$loaded(function (list) {
+                    for (var i = 0; i < listSubjectsIds.length; i++) {
+                        $scope.subjects.push(list[listSubjectsIds[i]]);
+                    }
+                    $scope.gettingData = false;
+                    $scope.refreshShow = false;
+                });
+            }
+        } else {
+            $ionicPopup.confirm({
+                title: "Интернет конекција",
+                content: "Дисконектирани сте од интернет. Ве молиме конектирајте се за да ги превземете податоците.",
+                buttons: [
+                    {text: 'Откажи'},
+                    {
+                        text: 'OK',
+                        type: 'button-calm'
+                    }
+                ]
+            }).then(function (result) {
+                $scope.gettingData = false;
+                $scope.refreshShow = true;
+            });
         }
-        $scope.gettingData = false;
-    });
+    };
+
+    $scope.refresh = function () {
+        $scope.refreshShow = false;
+        $scope.gettingData = true;
+        $scope.getData();
+    };
+
+    //For computer
+    //var listSubjectsIds = $localstorage.getObject('subjectsIds');
+    //$scope.subjects = Array();
+    //var subjects = fireBaseData.subjectsRef();
+    //subjects.$loaded(function (list) {
+    //    for (var i = 0; i < listSubjectsIds.length; i++) {
+    //        $scope.subjects.push(list[listSubjectsIds[i]]);
+    //    }
+    //    $scope.gettingData = false;
+    //});
 
 
     $scope.showSelected = function () {

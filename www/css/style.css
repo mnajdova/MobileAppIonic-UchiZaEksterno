@@ -8,6 +8,7 @@
     width: 28px;
     height: 28px;
 }
+
 .spinner{
     width: 28px;
     height: 28px;
@@ -24,4 +25,25 @@
     top:42%;
     position:relative;
     opacity:0.6;
+}
+
+.refreshIcon{
+	position:absolute; 
+	left:44%;
+	top:42%; 
+	font-size: 60px !important;
+	color:#43cee6 !important;
+	-webkit-tap-highlight-color: gray !important;
+}
+.refreshIcon.active{
+	color:gray !important;
+}
+
+.refreshIcon:hover{
+	color:gray !important;
+}
+
+.tab-item-active, .tab-item.active, .tab-item.activated {
+    color: #11c1f3;
+    opacity: 1;
 }

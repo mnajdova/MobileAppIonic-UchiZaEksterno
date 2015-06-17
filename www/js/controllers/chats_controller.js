@@ -27,6 +27,7 @@ controllers.controller('ChatsCtrl', function ($scope, fireBaseData, $firebase, $
     };
 
     $scope.data = Object();
+
     function getChatrooms() {
         $scope.data.gettingData = true;
         console.log("Korisnikot ne e prazen string");
@@ -49,7 +50,7 @@ controllers.controller('ChatsCtrl', function ($scope, fireBaseData, $firebase, $
                     text.on("value", function (t){
                         console.log(t.val());
                         console.log(t);
-                        var id = t["Cc"]["path"]["u"][1];
+                        var id = t["V"]["path"]["n"][1];
                         console.log(id);
                         $scope.questions.push({"text": t.val(), "id": id});
                         done++;
@@ -72,7 +73,7 @@ controllers.controller('ChatsCtrl', function ($scope, fireBaseData, $firebase, $
     }
 
     if (JSON.stringify($localstorage.getObject('user')) != "{}") {
-        console.log("se povikuva getchatrooms");
+
         getChatrooms();
     }
     else {

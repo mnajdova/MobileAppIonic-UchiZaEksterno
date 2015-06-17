@@ -1,4 +1,4 @@
-controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $localstorage, $rootScope, $state, $ionicLoading) {
+controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebaseArray, $localstorage, $rootScope, $state, $ionicLoading) {
 
 
     if(JSON.stringify($localstorage.getObject('user'))!="{}"){
@@ -60,7 +60,7 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                     console.log("Authenticated successfully with payload:", authData);
 
                     var users = fireBaseData.usersRef();
-                    var usersArray = $firebase(users).$asArray();
+                    var usersArray = $firebaseArray(users);
 
                     usersArray.$loaded(function (list) {
                         var user = list.$getRecord(authData.auth.uid);
@@ -78,7 +78,8 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                             password: ""
                         };
 
-
+                        console.log("========Rootscope question============");
+                        console.log($rootScope.question);
                         if ($rootScope.invoker == 'chats') {
                             $state.transitionTo("tab.account", {}, {
                                 reload: true,
@@ -87,7 +88,7 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                             });
                             $rootScope.shouldGoTo = "chat";
                         }
-                        else if (JSON.stringify($rootScope.question) != "{}") {
+                        else if (JSON.stringify($rootScope.question) != "[object Object]" && JSON.stringify($rootScope.question) != "Object {}" && JSON.stringify($rootScope.question) != "{}") {
                             addChatroomIfNeeded();
                         } else {
                             $state.transitionTo("tab.account", {}, {
@@ -107,12 +108,12 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
 
     function addChatroomIfNeeded(){
         console.log($rootScope.question);
-        if(JSON.stringify($rootScope.question) != "{}" ){
+        if(JSON.stringify($rootScope.question) != "[object Object]" && JSON.stringify($rootScope.question) != "Object {}" && JSON.stringify($rootScope.question) != "{}"){
             var question = $rootScope.question;
             $rootScope.question = {};
             console.log(question);
             var users = fireBaseData.usersRef();
-            var usersArray = $firebase(users).$asArray();
+            var usersArray = $firebaseArray(users);
 
             usersArray.$loaded(function (list) {
                 var user = list.$getRecord($localstorage.getObject('user').$id);
@@ -136,7 +137,7 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebase, $l
                     });
                 }
                 else {
-                    var chatrooms = $firebase(users.child($localstorage.getObject('user').$id).child("chatrooms")).$asArray();
+                    var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
                     chatrooms.$loaded(function (listChatrooms) {
                         console.log(listChatrooms.length);
                         if (listChatrooms.length > 0) {

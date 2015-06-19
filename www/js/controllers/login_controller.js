@@ -1,7 +1,7 @@
-controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebaseArray, $localstorage, $rootScope, $state, $ionicLoading) {
+controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fireBaseData, $firebaseArray, $localstorage, $rootScope, $state, $ionicLoading) {
 
 
-    if(JSON.stringify($localstorage.getObject('user'))!="{}"){
+    if (JSON.stringify($localstorage.getObject('user')) != "{}") {
         $state.transitionTo("tab.account", {}, {
             reload: true,
             inherit: false,
@@ -14,9 +14,48 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebaseArra
         password: ""
     };
 
-    $scope.errormessage="";
+    $scope.errormessage = "";
 
-    $scope.login = function(email, password) {
+    $scope.login = function(email, pass){
+        if (window.Connection) {
+            if (navigator.connection.type == Connection.NONE) {
+                $ionicPopup.confirm({
+                    title: "Интернет конекција",
+                    content: "Вашата интернет конекција неможе да биде воспоставена. Конектирајте се на интернет и обидете се повторно.",
+                    buttons: [
+                        {text: 'Откажи'},
+                        {
+                            text: 'OK',
+                            type: 'button-calm'
+                        }
+                    ]
+                }).then(function (result) {
+                    $scope.gettingData = false;
+                    $scope.refreshShow = true;
+                });
+            }
+            else {
+                $scope.callLogin(email, pass);
+            }
+        } else {
+            $ionicPopup.confirm({
+                title: "Интернет конекција",
+                content: "Дисконектирани сте од интернет. Ве молиме конектирајте се за да ги превземете податоците.",
+                buttons: [
+                    {text: 'Откажи'},
+                    {
+                        text: 'OK',
+                        type: 'button-calm'
+                    }
+                ]
+            }).then(function (result) {
+                $scope.gettingData = false;
+                $scope.refreshShow = true;
+            });
+        }
+    }
+
+    $scope.callLogin = function (email, password) {
         if (typeof email == 'undefined' || email == "") {
             $scope.errormessage = "Внесете го вашиот меил.";
         } else if (typeof password == 'undefined' || password == "") {
@@ -81,22 +120,25 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebaseArra
                         console.log("========Rootscope question============");
                         console.log($rootScope.question);
                         if ($rootScope.invoker == 'chats') {
-                            $state.transitionTo("tab.account", {}, {
-                                reload: true,
-                                inherit: false,
-                                notify: true
-                            });
+                            $rootScope.invoker = "account";
                             $rootScope.shouldGoTo = "chat";
-                        }
-                        else if (JSON.stringify($rootScope.question) != "[object Object]" && JSON.stringify($rootScope.question) != "Object {}" && JSON.stringify($rootScope.question) != "{}") {
-                            addChatroomIfNeeded();
-                        } else {
                             $state.transitionTo("tab.account", {}, {
                                 reload: true,
                                 inherit: false,
                                 notify: true
                             });
+                        }
+                        else if ($rootScope.invoker == 'questions') {
+                            $rootScope.invoker = "account";
+                            addChatroom();
+                        } else {
                             $rootScope.shouldGoTo = "account";
+                            $rootScope.invoker = "account";
+                            $state.transitionTo("tab.account", {}, {
+                                reload: true,
+                                inherit: false,
+                                notify: true
+                            });
                         }
 
 
@@ -106,64 +148,66 @@ controllers.controller('LoginCtrl', function($scope, fireBaseData, $firebaseArra
         }
     }
 
-    function addChatroomIfNeeded(){
+    function addChatroom() {
         console.log($rootScope.question);
-        if(JSON.stringify($rootScope.question) != "[object Object]" && JSON.stringify($rootScope.question) != "Object {}" && JSON.stringify($rootScope.question) != "{}"){
-            var question = $rootScope.question;
-            $rootScope.question = {};
-            console.log(question);
-            var users = fireBaseData.usersRef();
-            var usersArray = $firebaseArray(users);
+        var question = $rootScope.question;
+        $rootScope.question = {};
+        console.log(question);
+        var users = fireBaseData.usersRef();
+        var usersArray = $firebaseArray(users);
 
-            usersArray.$loaded(function (list) {
-                var user = list.$getRecord($localstorage.getObject('user').$id);
-                console.log(parseInt(question.id));
-                console.log(typeof user["chatrooms"]);
-                if (typeof user["chatrooms"] === 'undefined') {
-                    console.log("The user doesn't exist or had a empty chatrooms");
+        usersArray.$loaded(function (list) {
+            var user = list.$getRecord($localstorage.getObject('user').$id);
+            console.log(parseInt(question.id));
+            console.log(typeof user["chatrooms"]);
+            if (typeof user["chatrooms"] === 'undefined') {
+                console.log("The user doesn't exist or had a empty chatrooms");
 
-                    users.child($localstorage.getObject('user').$id).set({
-                        first_name: $localstorage.getObject('user').first_name,
-                        last_name: $localstorage.getObject('user').last_name,
-                        picture_url: $localstorage.getObject('user').picture_url,
-                        chatrooms: [parseInt(question.id)]
-                    }, function(){
+                users.child($localstorage.getObject('user').$id).set({
+                    first_name: $localstorage.getObject('user').first_name,
+                    last_name: $localstorage.getObject('user').last_name,
+                    picture_url: $localstorage.getObject('user').picture_url,
+                    chatrooms: [parseInt(question.id)]
+                }, function () {
+                    $rootScope.shouldGoTo = "chat";
+                    $rootScope.invoker = "account";
+                    $state.transitionTo("tab.account", {}, {
+                        reload: true,
+                        inherit: false,
+                        notify: true
+                    });
+                });
+            }
+            else {
+                var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
+                chatrooms.$loaded(function (listChatrooms) {
+                    console.log(listChatrooms.length);
+                    if (listChatrooms.length > 0) {
+                        var contains = false;
+                        for (var i = 0; i < listChatrooms.length; i++) {
+                            console.log($scope.question.id);
+                            console.log(listChatrooms[i]);
+                            if (listChatrooms[i].$value == parseInt(question.id)) {
+                                contains = true;
+                                break;
+                            }
+                        }
+                        if (contains == false) {
+                            users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.id));
+                        }
+
+                        $rootScope.shouldGoTo = "chat";
+                        $rootScope.invoker = "account";
                         $state.transitionTo("tab.account", {}, {
                             reload: true,
                             inherit: false,
                             notify: true
                         });
-                        $rootScope.shouldGoTo = "chat";
-                    });
-                }
-                else {
-                    var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
-                    chatrooms.$loaded(function (listChatrooms) {
-                        console.log(listChatrooms.length);
-                        if (listChatrooms.length > 0) {
-                            var contains = false;
-                            for (var i = 0; i < listChatrooms.length; i++) {
-                                console.log($scope.question.id);
-                                console.log(listChatrooms[i]);
-                                if (listChatrooms[i].$value == parseInt(question.id)) {
-                                    contains = true;
-                                    break;
-                                }
-                            }
-                            if (contains == false) {
-                                users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt(question.id));
-                            }
 
-                            $state.transitionTo("tab.account", {}, {
-                                reload: true,
-                                inherit: false,
-                                notify: true
-                            });
-                            $rootScope.shouldGoTo = "chat";
-                        }
-                    })
-                }
-            });
-        }
+                    }
+                })
+            }
+        });
+
     }
 });

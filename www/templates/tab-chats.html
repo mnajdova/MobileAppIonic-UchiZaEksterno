@@ -2,6 +2,7 @@
 <ion-view title="Разговори">
     <ion-content>
         <ion-spinner ng-show="data.gettingData" icon="ios"></ion-spinner>
+        <i class="icon ion-refresh refreshIcon" ng-click="refresh()" ng-show="data.refreshShow"></i>
         <ion-list>
             <ion-item class="item-text-wrap" ng-repeat="question in questions" >
                 <div style="margin-right:-50px; margin-left:-15px; display : flex; align-items : center; " type="item-text-wrap">

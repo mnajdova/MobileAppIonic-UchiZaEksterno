@@ -13,7 +13,7 @@ controllers.controller('TypesOfEducationsCtrl', function ($scope, $timeout, fire
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
                     title: "Интернет конекција",
-                    content: "Дисконектирани сте од интернет. Ве молиме конектирајте се за да ги превземете податоците.",
+                    content: "Вашата интернет конекција неможе да биде воспоставена. Конектирајте се на интернет и обидете се повторно.",
                     buttons: [
                         {text: 'Откажи'},
                         {

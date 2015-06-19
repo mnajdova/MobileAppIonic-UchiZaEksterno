@@ -6,7 +6,7 @@
 <meta charset="utf-8">
 <ion-tabs class="tabs-icon-only">
   <!-- My Tab -->
-  <ion-tab title="Прашања" icon-off="ion-ios-book-outline" icon-on="ion-ios-book" href="#/tab/dash" >
+  <ion-tab title="Прашања" icon-off="ion-ios-book-outline" icon-on="ion-ios-book" href="#/tab/dash">
     <ion-nav-view name="tab-dash"></ion-nav-view>
   </ion-tab>
   <!-- Friends Tab -->
@@ -14,7 +14,7 @@
     <ion-nav-view name="tab-chats"></ion-nav-view>
   </ion-tab>
   <!-- Account -->
-  <ion-tab title="Прилагодувања" icon-off="ion-ios-gear-outline" icon-on="ion-ios-gear" href="#/tab/account">
+  <ion-tab title="Прилагодувања" icon-off="ion-ios-gear-outline" icon-on="ion-ios-gear" href="#/tab/account" ng-click="onTabSelected()" ng-controller="AccountTabLocalCtrl">
     <ion-nav-view name="tab-account"></ion-nav-view>
   </ion-tab>
 </ion-tabs>

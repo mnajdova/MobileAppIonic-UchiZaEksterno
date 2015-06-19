@@ -176,8 +176,8 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                 if(res==true) {
                     $rootScope.question = $scope.questions[$scope.index];
                     console.log("================Rootscope question============="+$rootScope.question);
+                    $rootScope.invoker = "questions";
                     $state.go("tab.account");
-                    console.log($rootScope.question);
                 }
             });
         }

@@ -9,3 +9,10 @@ controllers.controller('ChatsTabLocalCtrl', function($scope, $state, $rootScope)
             }
         }
 });
+
+controllers.controller('AccountTabLocalCtrl', function($scope, $state, $rootScope) {
+    $scope.onTabSelected = function() {
+        $rootScope.invoker = "account";
+        $state.go('tab.account');
+    }
+});

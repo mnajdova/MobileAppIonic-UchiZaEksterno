@@ -76,7 +76,13 @@ controllers.controller('TypesOfEducationsCtrl', function ($scope, $timeout, fire
 
     $scope.choosenTypeOfEducation = function (id) {
         $localstorage.set('typeOfEducationId', id);
-        var listYearsOfStudyIds = $scope.typesOfEducation[id]["years-of-study"];
+        var index = 0;
+        for(var i=0;i<$scope.typesOfEducation.length;i++){
+            if($scope.typesOfEducation[i].$id == id){
+                index = i;
+            }
+        }
+        var listYearsOfStudyIds = $scope.typesOfEducation[index]["years-of-study"];
         transferList.setYearsOfStudy(listYearsOfStudyIds);
         $localstorage.setObject('yearsOfStudyIds', transferList.getYearsOfStudy());
         $state.transitionTo("tab.yearsOfStudy", {}, {reload: true, inherit: false, notify: true});

@@ -76,7 +76,14 @@ controllers.controller('YearsOfStudyCtrl', function($scope, $timeout, fireBaseDa
 
     $scope.choosenYearOfStudy = function(id){
         $localstorage.set('yearOfStudyId', id);
-        var listEducationPlansIds = $scope.yearsOfStudy[id]["education-plans"];
+        var index = 0;
+        for(var i=0;i<$scope.yearsOfStudy.length;i++){
+            if($scope.yearsOfStudy[i].$id == id){
+                index = i;
+            }
+        }
+        var listEducationPlansIds = $scope.yearsOfStudy[index]["education-plans"];
+        console.log(listEducationPlansIds);
         transferList.setEducationPlans(listEducationPlansIds);
         $localstorage.setObject('educationPlansIds', transferList.getEducationPlans());
         $state.transitionTo("tab.educationPlans", {}, {reload: true, inherit: false, notify: true});

@@ -13,23 +13,46 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
 
     subjects.$loaded(function (list) {
         listQuestionsIds = list[$scope.choise]["questions"];
-        console.log(list[$scope.choise]);
+        console.log(list[$scope.choise]["questions"]);
         console.log(list);
         $scope.questions = [];
 
         var done = 0;
-
+        var k=0;
+        var questions = [];
         for (var i = 0; i < listQuestionsIds.length; i++){
-
-            $scope.questions[listQuestionsIds[i]] = Object();
+            console.log(listQuestionsIds[i]);
+            questions[listQuestionsIds[i]] = Object();
+            questions[listQuestionsIds[i]]["id"] = listQuestionsIds[i];
+            //$scope.questions[listQuestionsIds[i]] = Object();
+            //$scope.questions[listQuestionsIds[i]]["id"] = listQuestionsIds[i];
             var text = fireBaseData.questionsRef().child(listQuestionsIds[i]).child("text");
             text.on("value", function(v){
                 console.log(v["V"]["path"]["n"][1]);
                 console.log(v);
                 var index = v["V"]["path"]["n"][1];
                 done++;
-                $scope.questions[parseInt(index)]["text"] = v.val();
+                //$scope.questions[parseInt(index)]["text"] = v.val();
+                questions[parseInt(index)]["text"] = v.val();
                 if(done>=listQuestionsIds.length*2){
+
+                    var keys = [];
+                    for (var key in questions) {
+                        if (questions.hasOwnProperty(key)) {
+                            keys.push(key);
+                        }
+                    }
+                    console.log("---------------------Keys---------------- od picture"+keys.length);
+
+                    for(var i=0; i<keys.length;i++){
+                        console.log(key);
+                        console.log(questions[keys[i]]);
+                        $scope.questions[i] = questions[keys[i]];
+
+                    }
+
+                    console.log(questions);
+                    console.log($scope.questions);
                     $scope.index = 0;
                     $scope.question = $scope.questions[$scope.index];
                     $timeout(function(){
@@ -42,8 +65,28 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
             picture.on("value", function(v){
                 var index = v["V"]["path"]["n"][1];
                 done++;
-                $scope.questions[parseInt(index)]["picture-url"] = v.val();
+                //$scope.questions[parseInt(index)]["picture-url"] = v.val();
+                questions[parseInt(index)]["picture-url"] = v.val();
                 if(done>=listQuestionsIds.length*2){
+
+                    var keys = [];
+                    for (var key in questions) {
+                        if (questions.hasOwnProperty(key)) {
+                            keys.push(key);
+                        }
+                    }
+                    console.log("---------------------Keys---------------- od picture"+keys.length);
+
+                    for(var i=0; i<keys.length;i++){
+                        console.log("kajsdfbkjsbkfjbskjfb"+key);
+                        console.log(questions[keys[i]]);
+                        $scope.questions[i] = questions[keys[i]];
+
+                    }
+
+                    console.log(questions);
+                    console.log($scope.questions);
+
                     $scope.index = 0;
                     $scope.question = $scope.questions[$scope.index];
                     $timeout(function(){
@@ -52,17 +95,19 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                     $scope.data.gettingData = false;
                 }
             });
-            $scope.questions[listQuestionsIds[i]]["id"] = listQuestionsIds[i];
+
         }
 
     })
 
     $scope.slideHasChanged = function(index){
+
         $scope.index = index;
         console.log("se povika");
     };
 
     $scope.nextQuestion = function () {
+        console.log($scope.questions);
         $ionicSlideBoxDelegate.next();
     };
 

@@ -76,7 +76,13 @@ controllers.controller('EducationPlansCtrl', function($scope, $timeout, fireBase
 
     $scope.choosenEducationPlan = function(id){
         $localstorage.set('educationPlanId', id);
-        var listSubjectsIds = $scope.educationPlans[id]["subjects"];
+        var index = 0;
+        for(var i=0;i<$scope.educationPlans.length;i++){
+           if($scope.educationPlans[i].$id == id){
+               index = i;
+           }
+        }
+        var listSubjectsIds = $scope.educationPlans[index]["subjects"];
         transferList.setSubjects(listSubjectsIds);
         $localstorage.setObject('subjectsIds', transferList.getSubjects());
         $state.transitionTo("tab.subjects", {}, {reload: true, inherit: false, notify: true});

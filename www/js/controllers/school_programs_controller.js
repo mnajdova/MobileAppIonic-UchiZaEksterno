@@ -71,7 +71,13 @@ controllers.controller('SchoolProgramsCtrl', function ($scope, fireBaseData, $ti
 
     $scope.choosenLanguage = function (id) {
         $localstorage.set('schoolProgramId', id);
-        var listTypesOfEducationsIds = $scope.schoolPrograms[id]["types-of-education"];
+        var index = 0;
+        for(var i=0;i<$scope.schoolPrograms.length;i++){
+            if($scope.schoolPrograms[i].$id == id){
+                index = i;
+            }
+        }
+        var listTypesOfEducationsIds = $scope.schoolPrograms[index]["types-of-education"];
         transferList.setTypesOfEducations(listTypesOfEducationsIds);
         $localstorage.setObject('typesOfEducationIds', transferList.getTypesOfEducations());
         $state.transitionTo("tab.typesOfEducations", {}, {reload: true, inherit: false, notify: true});

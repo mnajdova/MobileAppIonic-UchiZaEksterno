@@ -113,7 +113,7 @@ controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase
 
             var myPopup = $ionicPopup.show({
                 template: '<input type="password" ng-model="data.wifi">',
-                title: 'Задолжителна најава',
+                title: 'Зачувајте ги промените',
                 template: 'Дали сакате да ги зачувате овие промени? <label class="item item-input"> <span class="input-label">Име</span> <input type="text" ng-model="studentProfile.name"/> </label><label style="margin-top:10px;">{{error.message}}&nbsp;</label>',
                 scope: $scope,
                 buttons: [

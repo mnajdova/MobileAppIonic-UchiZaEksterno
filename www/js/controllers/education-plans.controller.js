@@ -1,15 +1,18 @@
-controllers.controller('YearsOfStudyCtrl', function($scope, $timeout, fireBaseData, transferList, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+angular.module('starter.controllers').controller('EducationPlansCtrl', function($scope, $timeout, fireBaseData, $firebase, transferList, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
 
     $scope.gettingData = true;
     $scope.refreshShow = false;
+
+    $scope.getData = getData;
+    $scope.refresh = refresh;
+    $scope.choosenEducationPlan = choosenEducationPlan;
 
     //For mobile
     $timeout(function () {
         $scope.getData();
     }, 1500);
 
-
-    $scope.getData = function () {
+    function getData() {
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -28,15 +31,15 @@ controllers.controller('YearsOfStudyCtrl', function($scope, $timeout, fireBaseDa
                 });
             }
             else {
-                var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
-                $scope.yearsOfStudy= Array();
-                var yearsOfStudy = fireBaseData.yearsOfStudyRef();
-                yearsOfStudy.$loaded(function(list){
-                    for(var i=0; i<listYearsOfStudyIds.length;i++){
-                        $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
+                var listEducationPlansIds = $localstorage.getObject('educationPlansIds');
+                $scope.educationPlans= Array();
+                var educationPlans = fireBaseData.educationPlansRef();
+                educationPlans.$loaded(function(list){
+                    for(var i=0; i<listEducationPlansIds.length;i++){
+                        $scope.educationPlans.push(list[listEducationPlansIds[i]]);
                     }
-                    $scope.refreshShow = false;
                     $scope.gettingData = false;
+                    $scope.refreshShow = false;
                 });
             }
         } else {
@@ -57,35 +60,35 @@ controllers.controller('YearsOfStudyCtrl', function($scope, $timeout, fireBaseDa
         }
     };
 
-    $scope.refresh = function () {
+    function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.getData();
     };
 
-    //For computer
-    //var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
-    //$scope.yearsOfStudy= Array();
-    //var yearsOfStudy = fireBaseData.yearsOfStudyRef();
-    //yearsOfStudy.$loaded(function(list){
-    //    for(var i=0; i<listYearsOfStudyIds.length;i++){
-    //        $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
+    //For testing on computer
+    //var listEducationPlansIds = $localstorage.getObject('educationPlansIds');
+    //$scope.educationPlans= Array();
+    //var educationPlans = fireBaseData.educationPlansRef();
+    //educationPlans.$loaded(function(list){
+    //    for(var i=0; i<listEducationPlansIds.length;i++){
+    //        $scope.educationPlans.push(list[listEducationPlansIds[i]]);
     //    }
     //    $scope.gettingData = false;
     //});
 
-    $scope.choosenYearOfStudy = function(id){
-        $localstorage.set('yearOfStudyId', id);
+    function choosenEducationPlan(id){
+        $localstorage.set('educationPlanId', id);
         var index = 0;
-        for(var i=0;i<$scope.yearsOfStudy.length;i++){
-            if($scope.yearsOfStudy[i].$id == id){
-                index = i;
-            }
+        for(var i=0;i<$scope.educationPlans.length;i++){
+           if($scope.educationPlans[i].$id == id){
+               index = i;
+           }
         }
-        var listEducationPlansIds = $scope.yearsOfStudy[index]["education-plans"];
-        console.log(listEducationPlansIds);
-        transferList.setEducationPlans(listEducationPlansIds);
-        $localstorage.setObject('educationPlansIds', transferList.getEducationPlans());
-        $state.transitionTo("tab.educationPlans", {}, {reload: true, inherit: false, notify: true});
+        var listSubjectsIds = $scope.educationPlans[index]["subjects"];
+        transferList.setSubjects(listSubjectsIds);
+        $localstorage.setObject('subjectsIds', transferList.getSubjects());
+        $state.transitionTo("tab.subjects", {}, {reload: true, inherit: false, notify: true});
     };
+
 });

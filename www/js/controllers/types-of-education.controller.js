@@ -1,15 +1,17 @@
-controllers.controller('SchoolProgramsCtrl', function ($scope, fireBaseData, $timeout, $firebase, transferList, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+angular.module('starter.controllers').controller('TypesOfEducationsCtrl', function ($scope, $timeout, fireBaseData, transferList, $ionicPlatform, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
     $scope.gettingData = true;
     $scope.refreshShow = false;
-    $scope.schoolPrograms = [];
+
+    $scope.getData = getData;
+    $scope.refresh = refresh;
+    $scope.choosenTypeOfEducation = choosenTypeOfEducation;
 
     //For mobile
     $timeout(function () {
         $scope.getData();
     }, 1500);
 
-
-    $scope.getData = function () {
+    function getData() {
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -28,11 +30,14 @@ controllers.controller('SchoolProgramsCtrl', function ($scope, fireBaseData, $ti
                 });
             }
             else {
-                var schoolPrograms = fireBaseData.schoolProgramsRef();
-
-                schoolPrograms.$loaded(function (list) {
+                var listTypesOfEducationsIds = $localstorage.getObject('typesOfEducationIds');
+                $scope.typesOfEducation = Array();
+                var typesOfEducations = fireBaseData.typesOfEducationRef();
+                typesOfEducations.$loaded(function (list) {
+                    for (var i = 0; i < listTypesOfEducationsIds.length; i++) {
+                        $scope.typesOfEducation.push(list[listTypesOfEducationsIds[i]]);
+                    }
                     $scope.gettingData = false;
-                    $scope.schoolPrograms = list;
                     $scope.refreshShow = false;
                 });
             }
@@ -54,32 +59,34 @@ controllers.controller('SchoolProgramsCtrl', function ($scope, fireBaseData, $ti
         }
     };
 
-    $scope.refresh = function () {
+    function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.getData();
     };
 
-
     //For computer
-    //var schoolPrograms = fireBaseData.schoolProgramsRef();
-    //
-    //schoolPrograms.$loaded(function (list) {
+    //var listTypesOfEducationsIds = $localstorage.getObject('typesOfEducationIds');
+    //$scope.typesOfEducation= Array();
+    //var typesOfEducations = fireBaseData.typesOfEducationRef();
+    //typesOfEducations.$loaded(function(list){
+    //    for(var i=0; i<listTypesOfEducationsIds.length;i++){
+    //        $scope.typesOfEducation.push(list[listTypesOfEducationsIds[i]]);
+    //    }
     //    $scope.gettingData = false;
-    //    $scope.schoolPrograms = list;
     //});
 
-    $scope.choosenLanguage = function (id) {
-        $localstorage.set('schoolProgramId', id);
+    function choosenTypeOfEducation(id) {
+        $localstorage.set('typeOfEducationId', id);
         var index = 0;
-        for(var i=0;i<$scope.schoolPrograms.length;i++){
-            if($scope.schoolPrograms[i].$id == id){
+        for(var i=0;i<$scope.typesOfEducation.length;i++){
+            if($scope.typesOfEducation[i].$id == id){
                 index = i;
             }
         }
-        var listTypesOfEducationsIds = $scope.schoolPrograms[index]["types-of-education"];
-        transferList.setTypesOfEducations(listTypesOfEducationsIds);
-        $localstorage.setObject('typesOfEducationIds', transferList.getTypesOfEducations());
-        $state.transitionTo("tab.typesOfEducations", {}, {reload: true, inherit: false, notify: true});
+        var listYearsOfStudyIds = $scope.typesOfEducation[index]["years-of-study"];
+        transferList.setYearsOfStudy(listYearsOfStudyIds);
+        $localstorage.setObject('yearsOfStudyIds', transferList.getYearsOfStudy());
+        $state.transitionTo("tab.yearsOfStudy", {}, {reload: true, inherit: false, notify: true});
     };
 });

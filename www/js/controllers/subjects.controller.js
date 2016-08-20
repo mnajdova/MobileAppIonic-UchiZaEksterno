@@ -1,16 +1,19 @@
-controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase, $timeout, transferList, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+angular.module('starter.controllers').controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase, $timeout, transferList, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
 
     $scope.gettingData = true;
     $scope.refreshShow = false;
     $scope.selected = [];
+
+    $scope.getData = getData;
+    $scope.refresh = refresh;
+    $scope.showSelected = showSelected;
 
     //For mobile
     $timeout(function () {
         $scope.getData();
     }, 1500);
 
-
-    $scope.getData = function () {
+    function getData() {
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -58,13 +61,13 @@ controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase
         }
     };
 
-    $scope.refresh = function () {
+    function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.getData();
     };
 
-    //For computer
+    //For testing on computer
     //var listSubjectsIds = $localstorage.getObject('subjectsIds');
     //$scope.subjects = Array();
     //var subjects = fireBaseData.subjectsRef();
@@ -75,9 +78,7 @@ controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase
     //    $scope.gettingData = false;
     //});
 
-
-    $scope.showSelected = function () {
-        console.log($scope.selected);
+    function showSelected() {
         var choosen = false;
         for(var i=0;i<$scope.selected.length;i++){
             if($scope.selected[i]==true){
@@ -99,12 +100,9 @@ controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase
 
             $scope.selectedSubjectsIds = [];
             for (key in $scope.selected) {
-                console.log(key);
                 $scope.selectedSubjectsIds.push(key);
             }
-            console.log($scope.selectedSubjectsIds);
             $localstorage.setObject('selectedSubjectsIds', $scope.selectedSubjectsIds);
-
             transferList.setSelectedSubjects($scope.selectedSubjectsIds);
 
 
@@ -158,10 +156,8 @@ controllers.controller('SubjectsCtrl', function ($scope, fireBaseData, $firebase
                     if (JSON.stringify($localstorage.getObject('studentsProfiles')) != "{}") {
                         studentsProfiles = $localstorage.getObject('studentsProfiles');
                     }
-                    console.log($scope.studentProfile.name);
                     studentsProfiles.push($scope.studentProfile);
                     $localstorage.setObject('studentsProfiles', studentsProfiles);
-                    console.log($localstorage.getObject('studentsProfiles'));
                     $state.transitionTo("tab.selectedSubjects", {}, {reload: true, inherit: false, notify: true});
                 }
             });

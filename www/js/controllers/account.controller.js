@@ -1,8 +1,17 @@
-controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopup, $firebaseArray, $timeout, $localstorage, $rootScope, $state, fileUpload, $cordovaCamera, $ionicHistory) {
-    $scope.data = {gettingData: false};
+angular.module('starter.controllers').controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopup, $firebaseArray, $timeout, $localstorage, $rootScope, $state, fileUpload, $cordovaCamera, $ionicHistory) {
 
-    $scope.removeStudentProfile = function (name) {
-        console.log($scope.studentsProfiles);
+    $scope.data = {gettingData: false};
+    $scope.removeStudentProfile = removeStudentProfile;
+    $scope.send = send;
+    $scope.takePic = takePic;
+    $scope.logout = logout;
+    $scope.login = login;
+    $scope.loginWithFacebook = loginWithFacebook;
+    $scope.refresh = refresh;
+
+    var uploadUrl = 'http://zor-komerc.mk/uchizaeksterno/upload.php';
+
+    function removeStudentProfile(name) {
         var updatedStudentProfiles = [];
         for (var i = 0; i < $scope.studentsProfiles.length; i++) {
             if ($scope.studentsProfiles[i]['name'] != name) {
@@ -15,7 +24,8 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
         });
     };
 
-    $scope.send = function () {
+
+    function send() {
         var imageURI = $scope.picData;
         var options = new FileUploadOptions();
         options.fileKey = "file";
@@ -25,7 +35,7 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
         options.params = params;
         options.chunkedMode = false;
         var ft = new FileTransfer();
-        ft.upload(imageURI, "http://zor-komerc.mk/uchizaeksterno/upload.php", win, fail,
+        ft.upload(imageURI, uploadUrl, win, fail,
             options);
     };
 
@@ -67,11 +77,9 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
                 }
             ]
         });
-        console.log("upload error source " + error.source);
-        console.log("upload error target " + error.target);
     }
 
-    $scope.takePic = function (type) {
+    function takePic(type) {
         var sourceType;
         if (type == 0) {
             sourceType = Camera.PictureSourceType.CAMERA;
@@ -89,8 +97,8 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
         };
         navigator.camera.getPicture(onSuccess, onFail, options);
     }
+
     var onSuccess = function (FILE_URI) {
-        console.log(FILE_URI);
         $scope.picData = FILE_URI;
         $scope.data.gettingData = true;
         $scope.send();
@@ -107,13 +115,12 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
                 }
             ]
         });
-        console.log("On fail " + e);
     };
 
     $scope.studentsProfiles = $localstorage.getObject('studentsProfiles');
-    console.log($scope.studentsProfiles);
+    $scope.choosenStudentProfile = choosenStudentProfile;
 
-    $scope.choosenStudentProfile = function (name) {
+    function choosenStudentProfile(name) {
         for (var i = 0; i < $scope.studentsProfiles.length; i++) {
             if (name == $scope.studentsProfiles[i].name) {
                 $localstorage.setObject('selectedSubjectsIds', $scope.studentsProfiles[i].subjects);
@@ -122,7 +129,9 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
         }
     };
 
-    $scope.addNewProfile = function () {
+    $scope.addNewProfile = addNewProfile;
+
+    function addNewProfile() {
         $state.transitionTo("tab.schoolPrograms", {}, {reload: true, inherit: false, notify: true});
     };
 
@@ -141,14 +150,13 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
         });
     }
 
-    $scope.refresh = function () {
+    function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.login();
     };
 
-
-    $scope.loginWithFacebook = function(){
+    function loginWithFacebook(){
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -187,7 +195,7 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
         }
     };
 
-    $scope.login = function () {
+    function login() {
         window.open = cordova.InAppBrowser.open;
         var ref = fireBaseData.appRef();
 
@@ -204,19 +212,13 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
                     ]
                 });
             } else {
-                console.log("Authenticated successfully with payload:", authData);
-
-                console.log("id: " + authData.auth.uid);
-                console.log("first_name: " + authData.facebook.cachedUserProfile.first_name);
-                console.log("last_name: " + authData.facebook.cachedUserProfile.last_name);
-                console.log("picture_url: " + authData.facebook.cachedUserProfile.picture.data.url);
 
                 var users = fireBaseData.usersRef();
                 var usersArray = $firebaseArray(users);
 
                 usersArray.$loaded(function (list) {
                     var user = list.$getRecord(authData.auth.uid);
-                    console.log("pred localstorage");
+
                     $localstorage.setObject('user', {
                         $id: authData.auth.uid,
                         first_name: authData.facebook.cachedUserProfile.first_name,
@@ -247,7 +249,6 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
 
                     }
                     else {
-                        console.log("================Rootscope question=============" + JSON.stringify($rootScope.question));
                         if ($rootScope.invoker == "chats") {
                             $rootScope.invoker = "account";
                             $state.transitionTo("tab.chats", {}, {
@@ -276,20 +277,16 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
     };
 
     function addChatroom() {
-        console.log($rootScope.question);
-
         var question = $rootScope.question;
         $rootScope.question = {};
-        console.log(question);
+
         var users = fireBaseData.usersRef();
         var usersArray = $firebaseArray(users);
 
         usersArray.$loaded(function (list) {
             var user = list.$getRecord($localstorage.getObject('user').$id);
-            console.log(parseInt(question.id));
-            console.log(typeof user["chatrooms"]);
+
             if (typeof user["chatrooms"] === 'undefined') {
-                console.log("The user doesn't exist or had a empty chatrooms");
 
                 users.child($localstorage.getObject('user').$id).set({
                     first_name: $localstorage.getObject('user').first_name,
@@ -307,12 +304,10 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
             else {
                 var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
                 chatrooms.$loaded(function (listChatrooms) {
-                    console.log(listChatrooms.length);
+
                     if (listChatrooms.length > 0) {
                         var contains = false;
                         for (var i = 0; i < listChatrooms.length; i++) {
-                            console.log($scope.question.id);
-                            console.log(listChatrooms[i]);
                             if (listChatrooms[i].$value == parseInt(question.id)) {
                                 contains = true;
                                 break;
@@ -334,10 +329,9 @@ controllers.controller('AccountCtrl', function ($scope, fireBaseData, $ionicPopu
 
     }
 
-    $scope.logout = function () {
+    function logout() {
         $localstorage.setObject('user', {});
         if (JSON.stringify($localstorage.getObject('user')) == "{}") {
-            console.log("OK");
             $scope.showLoginForm = true;
         }
         $rootScope.chatPage = "tab.chat";

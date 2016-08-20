@@ -1,9 +1,14 @@
-controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+angular.module('starter.controllers').controller('DashCtrl', function($scope, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
     $rootScope.invoker="";//default
     $rootScope.question = {};//default
     $rootScope.noUserPictreUrl = "http://icons.iconarchive.com/icons/icons8/ios7/256/Users-User-Male-2-icon.png";
 
-
+    $scope.choosenLanguage = choosenLanguage;
+    $scope.choosenTypeOfEducation = choosenTypeOfEducation;
+    $scope.choosenYearOfStudy = choosenYearOfStudy;
+    $scope.choosenEducationPlan = choosenEducationPlan;
+    $scope.showSelected = showSelected;
+    $scope.showSelectedSubject = showSelectedSubject;
 
     function showLoading(){
         $ionicLoading.show({
@@ -17,18 +22,16 @@ controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $lo
 
     showLoading();
 
-    $scope.$parent.wasChatLoaded=false;
+    $scope.$parent.wasChatLoaded = false;
 
     var scoolPrograms = fireBaseData.schoolProgramsRef();
 
     scoolPrograms.$loaded(function(list){
         $ionicLoading.hide();
         $scope.schoolPrograms = list;
-        console.log($scope.schoolPrograms);
     });
 
-
-    $scope.choosenLanguage = function(id){
+    function choosenLanguage(id){
         showLoading();
         $localstorage.set('schoolProgramId', id);
         var listTypesOfEducationsIds = $scope.schoolPrograms[id]["types-of-education"];
@@ -44,7 +47,7 @@ controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $lo
         $scope.showTypesEducation = true;
     };
 
-    $scope.choosenTypeOfEducation = function(id){
+    function choosenTypeOfEducation(id){
         showLoading();
         $localstorage.set('typeOfEducationId', id);
         var listYearsOfStudyIds = $scope.typesOfEducation[id]["years-of-study"];
@@ -60,7 +63,7 @@ controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $lo
         $scope.showYearsOfStudy = true;
     };
 
-    $scope.choosenYearOfStudy = function(id){
+    function choosenYearOfStudy(id){
         showLoading();
         $localstorage.set('yearOfStudyId', id);
         var listEducationPlansIds = $scope.yearsOfStudy[id]["education-plans"];
@@ -76,7 +79,7 @@ controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $lo
         $scope.showEducationPlans = true;
     };
 
-    $scope.choosenEducationPlan = function(id){
+    function choosenEducationPlan(id){
         showLoading();
         $localstorage.set('educationPlanId', id);
         var listSubjectsIds = $scope.educationPlans[id]["subjects"];
@@ -125,13 +128,11 @@ controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $lo
         $scope.selectedSubjects=[];
     }
 
-    $scope.showSelected = function() {
+    function showSelected() {
         $scope.selectedSubjectsIds=[];
         for(key in $scope.selected){
-            console.log(key);
             $scope.selectedSubjectsIds.push(key);
         }
-        console.log($scope.selectedSubjectsIds);
         $localstorage.setObject('selectedSubjectsIds', $scope.selectedSubjectsIds);
 
         $scope.selectedSubjects= Array();
@@ -147,20 +148,12 @@ controllers.controller('DashCtrl', function($scope, fireBaseData, $firebase, $lo
         $scope.showSelectedSubjects=true;
     };
 
-    $scope.showSelectedSubject = function(id){
+    function showSelectedSubject(id){
         $scope.choise = id;
         $localstorage.set('choiseId', id);
     };
 
     function checkSelectionOfStudentProfile(){
-        console.log("Povikana checkSelection");
-
-        console.log( $localstorage.get('schoolProgramId') +"\n"+
-            $localstorage.get('typeOfEducationId') +"\n"+
-            $localstorage.get('yearOfStudyId') +"\n"+
-            $localstorage.get('educationPlanId') +"\n"+
-            $localstorage.getObject('selectedSubjectsIds') +"\n"+
-            $localstorage.getObject('selectedSubjectsIds').length);
 
         if( typeof $localstorage.get('schoolProgramId') === 'undefined' ||
             typeof $localstorage.get('typeOfEducationId') === 'undefined' ||

@@ -1,6 +1,16 @@
-controllers.controller('TypesOfEducationsCtrl', function ($scope, $timeout, fireBaseData, transferList, $ionicPlatform, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+angular.module('starter.controllers').controller('SelectedSubjectsCtrl', function($scope, $timeout, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
+
+    if(JSON.stringify($localstorage.getObject('selectedSubjectsIds'))=="{}"){
+        $state.go('tab.schoolPrograms');
+    }
+
     $scope.gettingData = true;
     $scope.refreshShow = false;
+
+    $scope.getData = getData;
+    $scope.refresh = refresh;
+    $scope.showSelectedSubject = showSelectedSubject;
+    $scope.openQuestions = openQuestions;
 
     //For mobile
     $timeout(function () {
@@ -8,7 +18,7 @@ controllers.controller('TypesOfEducationsCtrl', function ($scope, $timeout, fire
     }, 1500);
 
 
-    $scope.getData = function () {
+    function getData() {
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -27,12 +37,12 @@ controllers.controller('TypesOfEducationsCtrl', function ($scope, $timeout, fire
                 });
             }
             else {
-                var listTypesOfEducationsIds = $localstorage.getObject('typesOfEducationIds');
-                $scope.typesOfEducation = Array();
-                var typesOfEducations = fireBaseData.typesOfEducationRef();
-                typesOfEducations.$loaded(function (list) {
-                    for (var i = 0; i < listTypesOfEducationsIds.length; i++) {
-                        $scope.typesOfEducation.push(list[listTypesOfEducationsIds[i]]);
+                var selectedSubjectsIds = $localstorage.getObject('selectedSubjectsIds');
+                $scope.selectedSubjects= Array();
+                var subjects = fireBaseData.subjectsRef();
+                subjects.$loaded(function(list){
+                    for(var i=0; i<selectedSubjectsIds.length;i++){
+                        $scope.selectedSubjects.push(list[selectedSubjectsIds[i]]);
                     }
                     $scope.gettingData = false;
                     $scope.refreshShow = false;
@@ -56,35 +66,30 @@ controllers.controller('TypesOfEducationsCtrl', function ($scope, $timeout, fire
         }
     };
 
-    $scope.refresh = function () {
+    function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.getData();
     };
 
-    //For computer
-    //var listTypesOfEducationsIds = $localstorage.getObject('typesOfEducationIds');
-    //$scope.typesOfEducation= Array();
-    //var typesOfEducations = fireBaseData.typesOfEducationRef();
-    //typesOfEducations.$loaded(function(list){
-    //    for(var i=0; i<listTypesOfEducationsIds.length;i++){
-    //        $scope.typesOfEducation.push(list[listTypesOfEducationsIds[i]]);
+    //For testing on computer
+    //var selectedSubjectsIds = $localstorage.getObject('selectedSubjectsIds');
+    //$scope.selectedSubjects= Array();
+    //var subjects = fireBaseData.subjectsRef();
+    //subjects.$loaded(function(list){
+    //    for(var i=0; i<selectedSubjectsIds.length;i++){
+    //        $scope.selectedSubjects.push(list[selectedSubjectsIds[i]]);
     //    }
     //    $scope.gettingData = false;
     //});
 
 
-    $scope.choosenTypeOfEducation = function (id) {
-        $localstorage.set('typeOfEducationId', id);
-        var index = 0;
-        for(var i=0;i<$scope.typesOfEducation.length;i++){
-            if($scope.typesOfEducation[i].$id == id){
-                index = i;
-            }
-        }
-        var listYearsOfStudyIds = $scope.typesOfEducation[index]["years-of-study"];
-        transferList.setYearsOfStudy(listYearsOfStudyIds);
-        $localstorage.setObject('yearsOfStudyIds', transferList.getYearsOfStudy());
-        $state.transitionTo("tab.yearsOfStudy", {}, {reload: true, inherit: false, notify: true});
+    function showSelectedSubject(id){
+        $scope.choise = id;
+        $localstorage.set('choiseId', id);
     };
+
+    function openQuestions(choise){
+        $state.go('tab.questions', {'subjectId' : choise});
+    }
 });

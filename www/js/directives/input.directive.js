@@ -1,4 +1,4 @@
-app.directive('input', function($timeout) {
+angular.module('starter').directive('input', function($timeout) {
     return {
         restrict: 'E',
         scope: {

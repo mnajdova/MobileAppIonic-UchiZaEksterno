@@ -1,4 +1,4 @@
-controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $ionicPopup, $localstorage, $firebaseArray, $state, $rootScope, fireBaseData, $ionicPlatform, $ionicModal, $cordovaCamera) {
+angular.module('starter.controllers').controller('ChatDetailCtrl', function($scope, $timeout, $ionicScrollDelegate, $location, $ionicPopup, $localstorage, $firebaseArray, $state, $rootScope, fireBaseData, $ionicPlatform, $ionicModal, $cordovaCamera) {
 
     $scope.myId = $localstorage.getObject('user').$id;
 
@@ -21,14 +21,24 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
         isIOS = ionic.Platform.isWebView() && ionic.Platform.isIOS();
 
     $scope.refreshShow = false;
+    $scope.getData = getData;
+    $scope.inputUp = inputUp;
+    $scope.inputDown = inputDown;
+    $scope.closeKeyboard = closeKeyboard;
+    $scope.myGoBack = myGoBack;
+    $scope.showPopup = showPopup;
+    $scope.upload = upload;
+    $scope.showImage = showImage;
+    $scope.showModal = showModal;
+    $scope.closeModal = closeModal;
+    $scope.sendMessage = sendMessage;
 
     //For mobile
     $timeout(function () {
         $scope.getData();
     }, 1000);
 
-
-    $scope.getData = function () {
+    function getData() {
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -87,13 +97,13 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
         }
     };
 
-    $scope.refresh = function () {
+    $scope.refresh = function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.getData();
     };
 
-    //For computer
+    //For testing on computer
     //var questionRef = fireBaseData.appRef().child("questions").child(parseInt(questionId));
     //var ref = questionRef.child("chatroom").child("messages");
     //
@@ -114,10 +124,7 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
     //    });
     //});
 
-
-
-
-    $scope.inputUp = function() {
+    function inputUp() {
         if (isIOS) $scope.data.keyboardHeight = 216;
         $timeout(function() {
             $ionicScrollDelegate.scrollBottom(true);
@@ -125,20 +132,20 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
 
     };
 
-    $scope.inputDown = function() {
+    function inputDown() {
         if (isIOS) $scope.data.keyboardHeight = 0;
         $ionicScrollDelegate.resize();
     };
 
-    $scope.closeKeyboard = function() {
+    function closeKeyboard() {
         cordova.plugins.Keyboard.close();
     };
 
-    $scope.myGoBack = function(){
+    function myGoBack(){
         $state.go("tab.chats");
     };
 
-    $scope.showPopup = function(){
+    function showPopup(){
         $scope.myPopup = $ionicPopup.show({
             template: '<button class="button button-full button-calm" ng-click="upload(0)">Камера</button><button class="button button-full button-calm" ng-click="upload(1)">Галерија</button>',
             title: 'Прикачи фотографија',
@@ -150,7 +157,7 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
         });
     };
 
-    $scope.upload = function(type) {
+    function upload(type) {
         $scope.myPopup.close();
         var sourceType;
         if(type == 0)
@@ -213,12 +220,12 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
         });
     };
 
-    $scope.showImage = function(image) {
+    function showImage(image) {
         $scope.image = image;
         $scope.showModal('templates/image-popover.html');
     };
 
-    $scope.showModal = function(templateUrl) {
+    function showModal(templateUrl) {
         $ionicModal.fromTemplateUrl(templateUrl, {
             scope: $scope,
             animation: 'slide-in-up'
@@ -228,12 +235,12 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
         });
     }
 
-    $scope.closeModal = function() {
+    function closeModal() {
         $scope.modal.hide();
         $scope.modal.remove()
     };
 
-    $scope.sendMessage = function() {
+    function sendMessage() {
 
         var d = new Date();
         d = d.toLocaleTimeString().replace(/:\d+ /, ' ');
@@ -255,17 +262,6 @@ controllers.controller('ChatDetailCtrl', function($scope, $timeout, $ionicScroll
         }, 1000);
     };
 
-
     $scope.data = {};
-
-
-
-
-
-
-
-
-
-
 
 });

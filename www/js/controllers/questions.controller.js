@@ -1,11 +1,15 @@
-controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebaseArray, $localstorage, $ionicPopup, $state, $ionicLoading, $ionicSlideBoxDelegate, $ionicHistory, $location, $rootScope, $timeout) {
+angular.module('starter.controllers').controller('QuestionsCtrl', function($scope, fireBaseData, $firebaseArray, $localstorage, $ionicPopup, $state, $ionicLoading, $ionicSlideBoxDelegate, $ionicHistory, $location, $rootScope, $timeout) {
     var array = $location.path().split("/");
     $scope.choise = array[array.length - 1];
-    console.log(array[array.length - 1]);
 
     $scope.data = {
         gettingData: true
     };
+
+    $scope.slideHasChanged = function slideHasChanged(index){$scope.index = index;};
+    $scope.nextQuestion = function () {$ionicSlideBoxDelegate.next();};
+    $scope.prevQuestion = function () {$ionicSlideBoxDelegate.previous();};
+    $scope.joinChatRoom = joinChatRoom;
 
     var listQuestionsIds = [];
 
@@ -13,26 +17,20 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
 
     subjects.$loaded(function (list) {
         listQuestionsIds = list[$scope.choise]["questions"];
-        console.log(list[$scope.choise]["questions"]);
-        console.log(list);
         $scope.questions = [];
 
         var done = 0;
         var k=0;
         var questions = [];
         for (var i = 0; i < listQuestionsIds.length; i++){
-            console.log(listQuestionsIds[i]);
             questions[listQuestionsIds[i]] = Object();
             questions[listQuestionsIds[i]]["id"] = listQuestionsIds[i];
-            //$scope.questions[listQuestionsIds[i]] = Object();
-            //$scope.questions[listQuestionsIds[i]]["id"] = listQuestionsIds[i];
+
             var text = fireBaseData.questionsRef().child(listQuestionsIds[i]).child("text");
             text.on("value", function(v){
-                console.log(v["V"]["path"]["n"][1]);
-                console.log(v);
                 var index = v["V"]["path"]["n"][1];
                 done++;
-                //$scope.questions[parseInt(index)]["text"] = v.val();
+
                 questions[parseInt(index)]["text"] = v.val();
                 if(done>=listQuestionsIds.length*2){
 
@@ -42,17 +40,11 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                             keys.push(key);
                         }
                     }
-                    console.log("---------------------Keys---------------- od picture"+keys.length);
 
                     for(var i=0; i<keys.length;i++){
-                        console.log(key);
-                        console.log(questions[keys[i]]);
                         $scope.questions[i] = questions[keys[i]];
-
                     }
 
-                    console.log(questions);
-                    console.log($scope.questions);
                     $scope.index = 0;
                     $scope.question = $scope.questions[$scope.index];
                     $timeout(function(){
@@ -65,7 +57,7 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
             picture.on("value", function(v){
                 var index = v["V"]["path"]["n"][1];
                 done++;
-                //$scope.questions[parseInt(index)]["picture-url"] = v.val();
+
                 questions[parseInt(index)]["picture-url"] = v.val();
                 if(done>=listQuestionsIds.length*2){
 
@@ -75,17 +67,10 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                             keys.push(key);
                         }
                     }
-                    console.log("---------------------Keys---------------- od picture"+keys.length);
 
                     for(var i=0; i<keys.length;i++){
-                        console.log("kajsdfbkjsbkfjbskjfb"+key);
-                        console.log(questions[keys[i]]);
                         $scope.questions[i] = questions[keys[i]];
-
                     }
-
-                    console.log(questions);
-                    console.log($scope.questions);
 
                     $scope.index = 0;
                     $scope.question = $scope.questions[$scope.index];
@@ -98,44 +83,25 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
 
         }
 
-    })
+    });
 
-    $scope.slideHasChanged = function(index){
-
-        $scope.index = index;
-        console.log("se povika");
-    };
-
-    $scope.nextQuestion = function () {
-        console.log($scope.questions);
-        $ionicSlideBoxDelegate.next();
-    };
-
-    $scope.prevQuestion = function () {
-        $ionicSlideBoxDelegate.previous();
-    };
-
-    $scope.joinChatRoom = function () {
+    function joinChatRoom() {
 
         if (JSON.stringify($localstorage.getObject('user')) != "{}") {
-            console.log("Userot e veke logiran");
             var users = fireBaseData.usersRef();
             var usersArray = $firebaseArray(users);
 
             usersArray.$loaded(function (list) {
                 var user = list.$getRecord($localstorage.getObject('user').$id);
                 if (user == null || typeof user["chatrooms"] === 'undefined') {
-                    console.log("The user doesn't exist or had a empty chatrooms");
 
                     users.child($localstorage.getObject('user').$id).set({
                             first_name: $localstorage.getObject('user').first_name,
                             last_name: $localstorage.getObject('user').last_name,
                             picture_url: $localstorage.getObject('user').picture_url,
-                            //chatrooms: [parseInt($scope.questions[$scope.index].$id)]
                             chatrooms: [parseInt($scope.questions[$scope.index].id)]
                         }, function(err){
                             console.log(err);
-                            //$state.transitionTo("tab.chats", $state.$current.params, {reload: true});
                             $state.transitionTo("tab.chats", {}, {
                                 reload: true,
                                 inherit: false,
@@ -145,27 +111,17 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                     );
                 }
                 else {
-                    console.log("The user existed");
                     var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
                     chatrooms.$loaded(function (listChatrooms) {
-                        console.log("Vo listChatrooms");
-                        console.log(listChatrooms.length);
                         if (listChatrooms.length > 0) {
                             var contains = false;
                             for (var i = 0; i < listChatrooms.length; i++) {
-                                //console.log($scope.questions[$scope.index].$id);
-                                console.log($scope.questions[$scope.index].id);
-                                console.log(listChatrooms[i].$value);
-                                //if (listChatrooms[i].$value == parseInt($scope.questions[$scope.index].$id)) {
                                 if (listChatrooms[i].$value == parseInt($scope.questions[$scope.index].id)) {
                                     contains = true;
-                                    console.log("Go najde");
                                     break;
                                 }
                             }
                             if (contains == false) {
-                                console.log("ne postoese");
-                                //users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt($scope.questions[$scope.index].$id));
                                 users.child($localstorage.getObject('user').$id).child("chatrooms").child(listChatrooms.length).set(parseInt($scope.questions[$scope.index].id));
                             }
 
@@ -173,14 +129,13 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
                                 reload: true,
                                 inherit: false,
                                 notify: true
-                            });;
+                            });
                         }
                         else {
                             users.child($localstorage.getObject('user').$id).set({
                                 first_name: $localstorage.getObject('user').first_name,
                                 last_name: $localstorage.getObject('user').last_name,
                                 picture_url: $localstorage.getObject('user').picture_url,
-                                //chatrooms: [parseInt($scope.questions[$scope.index].$id)]
                                 chatrooms: [parseInt($scope.questions[$scope.index].id)]
                             }, function(err){$state.transitionTo("tab.chats", {}, {
                                 reload: true,
@@ -220,7 +175,6 @@ controllers.controller('QuestionsCtrl', function($scope, fireBaseData, $firebase
             confirmPopup.then(function(res) {
                 if(res==true) {
                     $rootScope.question = $scope.questions[$scope.index];
-                    console.log("================Rootscope question============="+$rootScope.question);
                     $rootScope.invoker = "questions";
                     $state.go("tab.account");
                 }

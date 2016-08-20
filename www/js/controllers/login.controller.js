@@ -1,5 +1,4 @@
-controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fireBaseData, $firebaseArray, $localstorage, $rootScope, $state, $ionicLoading) {
-
+angular.module('starter.controllers').controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fireBaseData, $firebaseArray, $localstorage, $rootScope, $state, $ionicLoading) {
 
     if (JSON.stringify($localstorage.getObject('user')) != "{}") {
         $state.transitionTo("tab.account", {}, {
@@ -13,10 +12,12 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
         email: "",
         password: ""
     };
-
     $scope.errormessage = "";
 
-    $scope.login = function(email, pass){
+    $scope.login = login;
+    $scope.callLogin = callLogin;
+
+    function login(email, pass){
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -55,7 +56,7 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
         }
     }
 
-    $scope.callLogin = function (email, password) {
+    function callLogin(email, password) {
         if (typeof email == 'undefined' || email == "") {
             $scope.errormessage = "Внесете го вашиот меил.";
         } else if (typeof password == 'undefined' || password == "") {
@@ -72,19 +73,19 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
                     $scope.gettingData = false;
                     switch (error.code) {
                         case "INVALID_EMAIL":
-                            console.log("The specified user account email is invalid.");
+
                             $scope.$apply(function () {
                                 $scope.errormessage = "E-маил адресата е невалидна.";
                             });
                             break;
                         case "INVALID_PASSWORD":
-                            console.log("The specified user account password is incorrect.");
+
                             $scope.$apply(function () {
                                 $scope.errormessage = "Специфицираната лозинка е невалидна.";
                             });
                             break;
                         case "INVALID_USER":
-                            console.log("The specified user account does not exist.");
+
                             $scope.$apply(function () {
                                 $scope.errormessage = "Оваа корисничка сметка не постои.";
                             });
@@ -96,7 +97,6 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
                     }
                 }
                 else {
-                    console.log("Authenticated successfully with payload:", authData);
 
                     var users = fireBaseData.usersRef();
                     var usersArray = $firebaseArray(users);
@@ -117,8 +117,6 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
                             password: ""
                         };
 
-                        console.log("========Rootscope question============");
-                        console.log($rootScope.question);
                         if ($rootScope.invoker == 'chats') {
                             $rootScope.invoker = "account";
                             $rootScope.shouldGoTo = "chat";
@@ -149,19 +147,17 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
     }
 
     function addChatroom() {
-        console.log($rootScope.question);
+
         var question = $rootScope.question;
         $rootScope.question = {};
-        console.log(question);
+
         var users = fireBaseData.usersRef();
         var usersArray = $firebaseArray(users);
 
         usersArray.$loaded(function (list) {
             var user = list.$getRecord($localstorage.getObject('user').$id);
-            console.log(parseInt(question.id));
-            console.log(typeof user["chatrooms"]);
+
             if (typeof user["chatrooms"] === 'undefined') {
-                console.log("The user doesn't exist or had a empty chatrooms");
 
                 users.child($localstorage.getObject('user').$id).set({
                     first_name: $localstorage.getObject('user').first_name,
@@ -181,12 +177,11 @@ controllers.controller('LoginCtrl', function ($scope, $ionicPopup, $timeout, fir
             else {
                 var chatrooms = $firebaseArray(users.child($localstorage.getObject('user').$id).child("chatrooms"));
                 chatrooms.$loaded(function (listChatrooms) {
-                    console.log(listChatrooms.length);
+
                     if (listChatrooms.length > 0) {
                         var contains = false;
                         for (var i = 0; i < listChatrooms.length; i++) {
-                            console.log($scope.question.id);
-                            console.log(listChatrooms[i]);
+
                             if (listChatrooms[i].$value == parseInt(question.id)) {
                                 contains = true;
                                 break;

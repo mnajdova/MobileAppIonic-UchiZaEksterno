@@ -1,19 +1,17 @@
-controllers.controller('SelectedSubjectsCtrl', function($scope, $timeout, fireBaseData, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
-
-    if(JSON.stringify($localstorage.getObject('selectedSubjectsIds'))=="{}"){
-        $state.go('tab.schoolPrograms');
-    }
+angular.module('starter.controllers').controller('YearsOfStudyCtrl', function($scope, $timeout, fireBaseData, transferList, $firebase, $localstorage, $ionicPopup, $state, $ionicLoading, $rootScope) {
 
     $scope.gettingData = true;
     $scope.refreshShow = false;
+
+    $scope.getData = getData;
+    $scope.refresh = refresh;
 
     //For mobile
     $timeout(function () {
         $scope.getData();
     }, 1500);
 
-
-    $scope.getData = function () {
+    function getData() {
         if (window.Connection) {
             if (navigator.connection.type == Connection.NONE) {
                 $ionicPopup.confirm({
@@ -32,15 +30,15 @@ controllers.controller('SelectedSubjectsCtrl', function($scope, $timeout, fireBa
                 });
             }
             else {
-                var selectedSubjectsIds = $localstorage.getObject('selectedSubjectsIds');
-                $scope.selectedSubjects= Array();
-                var subjects = fireBaseData.subjectsRef();
-                subjects.$loaded(function(list){
-                    for(var i=0; i<selectedSubjectsIds.length;i++){
-                        $scope.selectedSubjects.push(list[selectedSubjectsIds[i]]);
+                var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
+                $scope.yearsOfStudy= Array();
+                var yearsOfStudy = fireBaseData.yearsOfStudyRef();
+                yearsOfStudy.$loaded(function(list){
+                    for(var i=0; i<listYearsOfStudyIds.length;i++){
+                        $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
                     }
-                    $scope.gettingData = false;
                     $scope.refreshShow = false;
+                    $scope.gettingData = false;
                 });
             }
         } else {
@@ -61,30 +59,34 @@ controllers.controller('SelectedSubjectsCtrl', function($scope, $timeout, fireBa
         }
     };
 
-    $scope.refresh = function () {
+    function refresh() {
         $scope.refreshShow = false;
         $scope.gettingData = true;
         $scope.getData();
     };
 
-    //For computer
-    //var selectedSubjectsIds = $localstorage.getObject('selectedSubjectsIds');
-    //$scope.selectedSubjects= Array();
-    //var subjects = fireBaseData.subjectsRef();
-    //subjects.$loaded(function(list){
-    //    for(var i=0; i<selectedSubjectsIds.length;i++){
-    //        $scope.selectedSubjects.push(list[selectedSubjectsIds[i]]);
+    //For testing on computer
+    //var listYearsOfStudyIds = $localstorage.getObject('yearsOfStudyIds');
+    //$scope.yearsOfStudy= Array();
+    //var yearsOfStudy = fireBaseData.yearsOfStudyRef();
+    //yearsOfStudy.$loaded(function(list){
+    //    for(var i=0; i<listYearsOfStudyIds.length;i++){
+    //        $scope.yearsOfStudy.push(list[listYearsOfStudyIds[i]]);
     //    }
     //    $scope.gettingData = false;
     //});
 
-
-    $scope.showSelectedSubject = function(id){
-        $scope.choise = id;
-        $localstorage.set('choiseId', id);
+    $scope.choosenYearOfStudy = function(id){
+        $localstorage.set('yearOfStudyId', id);
+        var index = 0;
+        for(var i=0;i<$scope.yearsOfStudy.length;i++){
+            if($scope.yearsOfStudy[i].$id == id){
+                index = i;
+            }
+        }
+        var listEducationPlansIds = $scope.yearsOfStudy[index]["education-plans"];
+        transferList.setEducationPlans(listEducationPlansIds);
+        $localstorage.setObject('educationPlansIds', transferList.getEducationPlans());
+        $state.transitionTo("tab.educationPlans", {}, {reload: true, inherit: false, notify: true});
     };
-
-    $scope.openQuestions = function(choise){
-        $state.go('tab.questions', {'subjectId' : choise});
-    }
 });

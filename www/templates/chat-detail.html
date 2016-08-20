@@ -1,10 +1,3 @@
-<!--
-  This template loads for the 'tab.friend-detail' state (app.js)
-  'friend' is a $scope variable created in the FriendsCtrl controller (controllers.js)
-  The FriendsCtrl pulls data from the Friends service (service.js)
-  The Friends service returns an array of friend data
--->
-
 <link href="css/messages.css" rel="stylesheet">
 
 <ion-view class="messaging-view" title="Разговор">
@@ -18,14 +11,12 @@
        ng-class="{other: message['user_id'] != myId}"
        class="messages" ng-show="message['user_id'].length>0" >
 
-
     <img style="width:50px; height:50px;" ng-show="message['user_id'] == myId" ng-src="{{message['user_picture']}}"/>
 
     <div class="message" ng-class="{'slide-right': hideTime, '': !hideTime}">
       <span class="spanMessage">{{ message.text }}<br ng-show="message['image'] != null && message['text'] != null" />
         <img ng-show="message['image'] != null" ng-src="data:image/jpeg;base64,{{message.image}}" ng-click="showImage(message.image)" width="120px" />
       </span>
-
     </div>
 
     <div class="time" ng-class="{'slide-right': hideTime, '': !hideTime}"><!--{{message.time}}--></div>
@@ -33,8 +24,6 @@
     <img style="width:50px; height:50px; background:white;" ng-show="message['user_id'] != myId" ng-src="{{message['user_picture']}}"/>
 
   </div>
-
-
 </ion-content>
 
 <ion-footer-bar keyboard-attach class="bar-stable item-input-inset">

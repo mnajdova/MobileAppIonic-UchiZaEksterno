@@ -1,5 +1,5 @@
 angular.module('starter', ['ionic', 'ionic.utils', 'starter.controllers', 'starter.services', 'firebase', 'ngCordova'])
-    .run(function ($ionicPlatform, $rootScope, $ionicPopup, $timeout, $state) {
+    .run(function ($ionicPlatform, $rootScope) {
 
         $rootScope.invoker = "";
         $rootScope.question = {};

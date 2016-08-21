@@ -65,7 +65,7 @@ angular.module('starter.controllers').controller('TypesOfEducationsCtrl', functi
         $scope.getData();
     };
 
-    //For computer
+    //For testing on computer
     //var listTypesOfEducationsIds = $localstorage.getObject('typesOfEducationIds');
     //$scope.typesOfEducation= Array();
     //var typesOfEducations = fireBaseData.typesOfEducationRef();
